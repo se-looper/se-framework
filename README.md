@@ -1,2 +1,2 @@
-# se-looper-se-framework
+# se-framework
 se network development framework

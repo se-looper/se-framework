@@ -1,0 +1,167 @@
+object TexturePackerFrm: TTexturePackerFrm
+  Left = 0
+  Top = 0
+  ClientHeight = 621
+  ClientWidth = 881
+  Position = MainFormCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object sboxPadding: TSpinBox
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 0
+    Cursor = crIBeam
+    Position.X = 152.000000000000000000
+    Position.Y = 592.000000000000000000
+  end
+  object Label1: TLabel
+    Position.X = 8.000000000000000000
+    Position.Y = 592.000000000000000000
+    Size.Width = 129.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Pattern padding:'
+    TabOrder = 3
+  end
+  object Label2: TLabel
+    Position.X = 8.000000000000000000
+    Position.Y = 536.000000000000000000
+    Size.Width = 129.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Image width:'
+    TabOrder = 2
+  end
+  object Label3: TLabel
+    Position.X = 8.000000000000000000
+    Position.Y = 560.000000000000000000
+    Size.Width = 129.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Image height:'
+    TabOrder = 1
+  end
+  object ComboBox1: TComboBox
+    Position.X = 152.000000000000000000
+    Position.Y = 528.000000000000000000
+    TabOrder = 4
+  end
+  object ComboBox2: TComboBox
+    Position.X = 152.000000000000000000
+    Position.Y = 560.000000000000000000
+    TabOrder = 5
+  end
+  object CheckBox1: TCheckBox
+    Position.X = 8.000000000000000000
+    Position.Y = 504.000000000000000000
+    Size.Width = 225.000000000000000000
+    Size.Height = 19.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 6
+    Text = 'Determine size automatically'
+    OnChange = CheckBox1Change
+  end
+  object ListBox1: TListBox
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 249.000000000000000000
+    Size.Height = 449.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 7
+    DisableFocusEffect = True
+    DefaultItemStyles.ItemStyle = ''
+    DefaultItemStyles.GroupHeaderStyle = ''
+    DefaultItemStyles.GroupFooterStyle = ''
+    OnChange = ListBox1Change
+    Viewport.Width = 245.000000000000000000
+    Viewport.Height = 445.000000000000000000
+  end
+  object FramedScrollBox1: TFramedScrollBox
+    Position.X = 264.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 609.000000000000000000
+    Size.Height = 569.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 8
+    Viewport.Width = 605.000000000000000000
+    Viewport.Height = 565.000000000000000000
+    object PaintBox1: TPaintBox
+      Position.X = 12.000000000000000000
+      Position.Y = 12.000000000000000000
+      Size.Width = 256.000000000000000000
+      Size.Height = 256.000000000000000000
+      Size.PlatformDefault = False
+      OnPaint = PaintBox1Paint
+    end
+  end
+  object Button1: TButton
+    Position.X = 264.000000000000000000
+    Position.Y = 592.000000000000000000
+    Size.Width = 97.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 12
+    Text = 'Pack'
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Position.X = 432.000000000000000000
+    Position.Y = 592.000000000000000000
+    Size.Width = 97.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 11
+    Text = 'SaveTo'
+  end
+  object Button3: TButton
+    Position.X = 544.000000000000000000
+    Position.Y = 592.000000000000000000
+    Size.Width = 97.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 10
+    Text = 'LoadFrom'
+  end
+  object Button4: TButton
+    Position.X = 776.000000000000000000
+    Position.Y = 592.000000000000000000
+    Size.Width = 97.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 9
+    Text = 'Close'
+  end
+  object Button5: TButton
+    Position.X = 8.000000000000000000
+    Position.Y = 464.000000000000000000
+    Size.Width = 57.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 15
+    Text = 'Add'
+    OnClick = Button5Click
+  end
+  object Button6: TButton
+    Position.X = 80.000000000000000000
+    Position.Y = 464.000000000000000000
+    Size.Width = 57.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 14
+    Text = 'Remove'
+    OnClick = Button6Click
+  end
+  object Button7: TButton
+    Position.X = 200.000000000000000000
+    Position.Y = 464.000000000000000000
+    Size.Width = 57.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 13
+    Text = 'Clear'
+    OnClick = Button7Click
+  end
+end

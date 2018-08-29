@@ -1,0 +1,95 @@
+{
+	"source": "editor.png",
+	"chunk": [{
+			"name": "button",
+			"left": 131,
+			"top": 519,
+			"right": 298,
+			"bottom": 563
+		},
+		{
+			"name": "checkbox_checked",
+			"left": 131,
+			"top": 565,
+			"right": 175,
+			"bottom": 609
+		},
+		{
+			"name": "checkbox_unchecked",
+			"left": 223,
+			"top": 565,
+			"right": 267,
+			"bottom": 609
+		},
+		{
+			"name": "editbox",
+			"left": 300,
+			"top": 519,
+			"right": 460,
+			"bottom": 559
+		},
+		{
+			"name": "image",
+			"left": 1,
+			"top": 519,
+			"right": 129,
+			"bottom": 647
+		},
+		{
+			"name": "listbox",
+			"left": 1,
+			"top": 1,
+			"right": 392,
+			"bottom": 401
+		},
+		{
+			"name": "listbox_downbutton",
+			"left": 91,
+			"top": 649,
+			"right": 112,
+			"bottom": 668
+		},
+		{
+			"name": "listbox_scrollbutton",
+			"left": 47,
+			"top": 649,
+			"right": 66,
+			"bottom": 673
+		},
+		{
+			"name": "listbox_upbutton",
+			"left": 68,
+			"top": 649,
+			"right": 89,
+			"bottom": 668
+		},
+		{
+			"name": "progressbar",
+			"left": 1,
+			"top": 461,
+			"right": 730,
+			"bottom": 517
+		},
+		{
+			"name": "progressbar_position",
+			"left": 1,
+			"top": 403,
+			"right": 730,
+			"bottom": 459
+		},
+		{
+			"name": "radiobutton_checked",
+			"left": 1,
+			"top": 649,
+			"right": 45,
+			"bottom": 693
+		},
+		{
+			"name": "radiobutton_unchecked",
+			"left": 177,
+			"top": 565,
+			"right": 221,
+			"bottom": 609
+		}
+	]
+}

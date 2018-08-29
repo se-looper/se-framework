@@ -1,0 +1,238 @@
+{
+	"Version": 1,
+	"Left": 0,
+	"Top": 0,
+	"Width": 960,
+	"Height": 540,
+	"Forms": [{
+		"Type": "TUIForm",
+		"Name": "frmStart",
+		"Left": 0,
+		"Top": 0,
+		"Width": 960,
+		"Height": 540,
+		"Enabled": true,
+		"Visible": true,
+		"WheelAcc": 0,
+		"Border": {
+			"Color": "FF000000",
+			"Edges": "eLeft,eTop,eRight,eBottom",
+			"Size": 0,
+			"ColorHover": "FF000000",
+			"ColorPressed": "FF000000"
+		},
+		"Margin": 0,
+		"TabOrder": 0,
+		"TabStop": false,
+		"BoundToScreen": false,
+		"CanMove": false,
+		"Color": ["FF000000", "FF000000", "FF000000", "FF000000"],
+		"Image": {
+			"Name": "start_bg.png",
+			"Left": 0,
+			"Top": 0,
+			"Width": 1920,
+			"Height": 1080
+		},
+		"Shadow": false,
+		"Controls": [{
+			"Type": "TUIButton",
+			"Name": "btnLoginByUserName",
+			"Left": 220,
+			"Top": 440,
+			"Width": 120,
+			"Height": 40,
+			"Enabled": true,
+			"Visible": true,
+			"WheelAcc": 0,
+			"Border": {
+				"Color": "FF000000",
+				"Edges": "eLeft,eTop,eRight,eBottom",
+				"Size": 1,
+				"ColorHover": "FF000000",
+				"ColorPressed": "FF000000"
+			},
+			"Margin": 0,
+			"TabOrder": 0,
+			"TabStop": true,
+			"Caption": "µÇÂ¼/×¢²á",
+			"Color": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorHover": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorPressed": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"FocusRect": 0,
+			"Font": {
+				"Name": "simsun",
+				"Size": 14,
+				"Style": "",
+				"ParagraphLine": false,
+				"Color": ["FF80FF00", "FF80FF00"],
+				"ColorHover": ["FF000000", "FF000000"],
+				"ColorPressed": ["FF4040FF", "FF4040FF"]
+			},
+			"Image": {
+				"Name": "button_n.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageHover": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"ImagePressed": {
+				"Name": "button_p.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageDisabled": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"Shadow": false,
+			"Transparent": false,
+			"TextHorzAlign": 0,
+			"TextVertAlign": 0
+		}, {
+			"Type": "TUIButton",
+			"Name": "btnLoginByWechat",
+			"Left": 420,
+			"Top": 440,
+			"Width": 120,
+			"Height": 40,
+			"Enabled": true,
+			"Visible": true,
+			"WheelAcc": 0,
+			"Border": {
+				"Color": "FF000000",
+				"Edges": "eLeft,eTop,eRight,eBottom",
+				"Size": 1,
+				"ColorHover": "FF000000",
+				"ColorPressed": "FF000000"
+			},
+			"Margin": 0,
+			"TabOrder": 1,
+			"TabStop": true,
+			"Caption": "Î¢ÐÅµÇÂ¼",
+			"Color": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorHover": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorPressed": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"FocusRect": 0,
+			"Font": {
+				"Name": "simsun",
+				"Size": 14,
+				"Style": "",
+				"ParagraphLine": false,
+				"Color": ["FF000000", "FF000000"],
+				"ColorHover": ["FF000000", "FF000000"],
+				"ColorPressed": ["FF000000", "FF000000"]
+			},
+			"Image": {
+				"Name": "button_n.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageHover": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"ImagePressed": {
+				"Name": "button_p.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageDisabled": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"Shadow": false,
+			"Transparent": false,
+			"TextHorzAlign": 0,
+			"TextVertAlign": 0
+		}, {
+			"Type": "TUIButton",
+			"Name": "btnLoginByGuess",
+			"Left": 620,
+			"Top": 440,
+			"Width": 120,
+			"Height": 40,
+			"Enabled": true,
+			"Visible": true,
+			"WheelAcc": 0,
+			"Border": {
+				"Color": "FF000000",
+				"Edges": "eLeft,eTop,eRight,eBottom",
+				"Size": 1,
+				"ColorHover": "FF000000",
+				"ColorPressed": "FF000000"
+			},
+			"Margin": 0,
+			"TabOrder": 2,
+			"TabStop": true,
+			"Caption": "ÓÎ¿ÍµÇÂ¼",
+			"Color": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorHover": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"ColorPressed": ["FF000000", "FF000000", "FF000000", "FF000000"],
+			"FocusRect": 0,
+			"Font": {
+				"Name": "simsun",
+				"Size": 14,
+				"Style": "",
+				"ParagraphLine": false,
+				"Color": ["FF000000", "FF000000"],
+				"ColorHover": ["FF000000", "FF000000"],
+				"ColorPressed": ["FF000000", "FF000000"]
+			},
+			"Image": {
+				"Name": "button_n.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageHover": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"ImagePressed": {
+				"Name": "button_p.png",
+				"Left": 0,
+				"Top": 0,
+				"Width": 120,
+				"Height": 40
+			},
+			"ImageDisabled": {
+				"Name": "",
+				"Left": 0,
+				"Top": 0,
+				"Width": 0,
+				"Height": 0
+			},
+			"Shadow": false,
+			"Transparent": false,
+			"TextHorzAlign": 0,
+			"TextVertAlign": 0
+		}]
+	}]
+}

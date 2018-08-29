@@ -1,0 +1,18 @@
+object AboutFrm: TAboutFrm
+  Left = 0
+  Top = 0
+  Caption = 'About'
+  ClientHeight = 480
+  ClientWidth = 640
+  Position = MainFormCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object btnClose: TButton
+    Position.X = 272.000000000000000000
+    Position.Y = 432.000000000000000000
+    TabOrder = 0
+    Text = 'Close'
+  end
+end

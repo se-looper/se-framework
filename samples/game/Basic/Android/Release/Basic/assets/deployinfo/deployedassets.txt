@@ -1,0 +1,6 @@
+.\assets\internal\script\app.lua
+.\assets\internal\Tahoma9b.xml
+.\assets\internal\Tahoma9b.png
+.\assets\internal\sys_miss.png
+.\assets\internal\script\module_start.lua
+.\assets\internal\return_button.png

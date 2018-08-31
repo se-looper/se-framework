@@ -1,0 +1,34 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = 'PXL Basic Demo'
+  ClientHeight = 480
+  ClientWidth = 640
+  Position = ScreenCenter
+  SystemStatusBar.Visibility = Invisible
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnMouseDown = FormMouseDown
+  OnResize = FormResize
+  OnPaint = FormPaint
+  DesignerMasterStyle = 3
+  object SysTimer: TTimer
+    Interval = 1
+    OnTimer = SysTimerTimer
+    Left = 136
+    Top = 160
+  end
+  object btnTest: TButton
+    Position.X = 16.000000000000000000
+    Position.Y = 48.000000000000000000
+    Size.Width = 81.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Text = 'Test'
+    OnClick = btnTestClick
+  end
+end

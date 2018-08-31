@@ -15,6 +15,7 @@
 
   Original source code was taken from:
     %NDK_DIR%/sources/android/native_app_glue
+
   Pascal translation by Yuriy Kotsarenko, August 2015.
 }
 unit Android.AppGlue;

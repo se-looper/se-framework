@@ -21,14 +21,4 @@ object MainForm: TMainForm
     Left = 136
     Top = 160
   end
-  object btnTest: TButton
-    Position.X = 16.000000000000000000
-    Position.Y = 48.000000000000000000
-    Size.Width = 81.000000000000000000
-    Size.Height = 44.000000000000000000
-    Size.PlatformDefault = False
-    TabOrder = 1
-    Text = 'Test'
-    OnClick = btnTestClick
-  end
 end

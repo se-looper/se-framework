@@ -148,6 +148,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\login_title.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>login_title.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>gdbserver</RemoteName>
@@ -169,6 +178,15 @@
         <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\script\</RemoteDir>
             <RemoteName>app.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -220,6 +238,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\rank_title.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_title.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\lib\android\debug\armeabi\libnative-activity.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\armeabi\</RemoteDir>
             <RemoteName>libBasic.so</RemoteName>
@@ -241,6 +268,15 @@
         <DeployFile Include="deploy\android\lib\armeabi\liblua.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\armeabi\</RemoteDir>
             <RemoteName>liblua.so</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\login_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>login_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -274,6 +310,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\rank_btn.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_btn.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="Android\Debug\styles.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\res\values\</RemoteDir>
             <RemoteName>styles.xml</RemoteName>
@@ -288,6 +333,15 @@
             <RemoteName>ic_launcher.png</RemoteName>
             <DeployClass>Android_LauncherIcon144</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\login.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>login.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -355,7 +409,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\android\lib\armeabi-v7a\liblua.so" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="deploy\android\lib\armeabi-v7a\liblua.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>liblua.so</RemoteName>
             <DeployClass>File</DeployClass>
@@ -364,7 +418,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\android\lib\armeabi-v7a\liblua.so" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="deploy\android\lib\armeabi-v7a\liblua.so" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>liblua.so</RemoteName>
             <DeployClass>File</DeployClass>
@@ -378,6 +432,24 @@
             <RemoteName>libBasic.so</RemoteName>
             <DeployClass>AndroidLibnativeMipsFile</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\item_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>item_bg.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\item_bg3.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>item_bg3.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -409,11 +481,29 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\item_bg4n.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>item_bg4n.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\lib\android\debug\mips\libnative-activity.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\mips\</RemoteDir>
             <RemoteName>libBasic.so</RemoteName>
             <DeployClass>AndroidLibnativeMipsFile</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\head01.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>head01.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -454,9 +544,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\return_button.png" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="deploy\item_bg2.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>return_button.png</RemoteName>
+            <RemoteName>item_bg2.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -519,6 +609,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\rank_close.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_close.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\res\drawable-xhdpi\</RemoteDir>
             <RemoteName>ic_launcher.png</RemoteName>
@@ -533,6 +632,15 @@
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage470</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\item_bg1.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>item_bg1.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>

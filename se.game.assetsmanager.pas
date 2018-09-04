@@ -95,6 +95,8 @@ type
     // example: Require('data.asvf', 'player_idle')
     function Require(const APackageName, AKey: string;
       const AUseDefault: Boolean = True): TEngineImage; overload;
+    // example: RequireFile('ui.atlas') -> file path
+    function RequireFile(const AKey: string): string;
   end;
 
   function AssetsManager: TAssetsManager;
@@ -341,6 +343,11 @@ begin
       Exit(nil);
   end;
   Result:= Require(LArchive, AKey, AUseDefault);
+end;
+
+function TAssetsManager.RequireFile(const AKey: string): string;
+begin
+  FFileMap.TryGetValue(AKey, Result);
 end;
 
 end.

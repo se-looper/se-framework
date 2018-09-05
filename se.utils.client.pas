@@ -23,18 +23,20 @@ type
     FAppFile, FAppPath, FAppHome, FAppDocuments, FAppName: string;
     FStatusBarHeight, FScreenScale: Single;
     FPhysicalScreenSize, FRawScreenSize: TSize;
+    FCosTable256: array[0..255] of Double;
   private
     class constructor Create;
     class destructor Destroy;
   public
-    class procedure SetMainForm(const AForm: TForm); static;
-
     class property AppFile: string read FAppFile;
     class property AppPath: string read FAppPath;
     class property AppHome: string read FAppHome;
     class property AppDocuments: string read FAppDocuments;
     class property AppName: string read FAppName;
-
+  public
+    //设置主窗口
+    class procedure SetMainForm(const AForm: TForm); static;
+    //状态栏高度
     class property StatusBarHeight: Single read FStatusBarHeight;
     //物理屏幕大小<移动设备不包含状态栏高度>
     class property PhysicalScreenSize: TSize read FPhysicalScreenSize;
@@ -42,6 +44,9 @@ type
     class property RawScreenSize: TSize read FRawScreenSize;
     //屏幕比例
     class property ScreenScale: Single read FScreenScale;
+  public
+    class function Cos256(const AIndex: Integer): Double;
+    class function Sin256(const AIndex: Integer): Double;
   end;
 
 implementation
@@ -108,12 +113,17 @@ end;
 { TClientUtils }
 
 class constructor TClientUtils.Create;
+var
+  I: Integer;
 begin
   FStatusBarHeight:= 0;
   FScreenScale:= 1.0;
   FPhysicalScreenSize.Create(0, 0);
   FRawScreenSize.Create(0, 0);
   FMainForm:= nil;
+  //
+  for I:= 0 to 255 do
+    FCosTable256[I]:= Cos((I/256)*2*PI);
 end;
 
 class destructor TClientUtils.Destroy;
@@ -144,6 +154,16 @@ begin
     FPhysicalScreenSize.cy:= Trunc(FPhysicalScreenSize.cy - FStatusBarHeight*FScreenScale);
     FRawScreenSize:= LDisplayMetrics.RawScreenSize;
   end;
+end;
+
+class function TClientUtils.Cos256(const AIndex: Integer): Double;
+begin
+  Result:= FCosTable256[AIndex and 255];
+end;
+
+class function TClientUtils.Sin256(const AIndex: Integer): Double;
+begin
+  Result:= FCosTable256[(AIndex+192) and 255];
 end;
 
 end.

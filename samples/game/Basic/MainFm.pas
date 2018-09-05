@@ -26,7 +26,8 @@ uses
   { PXL}
   PXL.Types, PXL.Fonts,
   { SE Framework }
-  se.utils.client, se.game.main, se.game.assetsmanager, se.game.script.package;
+  se.utils.client, se.game.main, se.game.assetsmanager, se.game.script.package,
+  se.game.sprite;
 
 type
   TBasicPackage = class(TScriptPackage)
@@ -107,18 +108,18 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure SysTimerTimer(Sender: TObject);
-    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
     procedure btnTestClick(Sender: TObject);
   private
     FGameMain: TGameMain;
     EngineFonts: TBitmapFonts;
     FontTahoma: Integer;
-    LoginButtonBounds, RankButtonBounds: TRectF;
     FStrings: TStrings;
     FBasicPackage: TBasicPackage;
     procedure DoRender(Sender: TObject);
   private
+    FSpriteManager: TSpriteManager;
+    procedure DoShowLogin(Sender: TObject);
+    procedure DoShowRank(Sender: TObject);
   private
     FMask: TRectangle;
     FLoginForm: TLoginForm;
@@ -182,20 +183,34 @@ begin
 
   FStrings:= TStringList.Create;
 
+  FSpriteManager:= TSpriteManager.Create(Self);
+  FSpriteManager.Canvas:= FGameMain.Canvas;
+  FSpriteManager.ViewPort:= FGameMain.DisplaySize;
+
   //right
-  LoginButtonBounds.Left  := FGameMain.DisplaySize.X  - 84* FGameMain.ScreenScale;
-  LoginButtonBounds.Top   := 20;
-  LoginButtonBounds.Width := 84*FGameMain.ScreenScale;
-  LoginButtonBounds.Height:= 84*FGameMain.ScreenScale;
+  with TGUISprite.Create(FSpriteManager) do
+  begin
+    Name:= 'btnShowLogin';
+    Image:= AssetsManager.Require('head01.png');
+    X:= FGameMain.DisplaySize.X  - 84* FGameMain.ScreenScale;
+    Y:= 20;
+    Width:= Round(84*FGameMain.ScreenScale);
+    Height:= Round(84*FGameMain.ScreenScale);
+    OnClick:= DoShowLogin;
+  end;
 
   //bottom & center
-  RankButtonBounds.Left  := FGameMain.DisplaySize.X/2 - 81* FGameMain.ScreenScale/2;
-  RankButtonBounds.Top   := FGameMain.DisplaySize.Y   - 81 * FGameMain.ScreenScale;
-  RankButtonBounds.Width := 81*FGameMain.ScreenScale;
-  RankButtonBounds.Height:= 81*FGameMain.ScreenScale;
-
-  FGameMain.RegScriptPackage(TBasicPackage, 'BasicPackage');
-  FGameMain.DriveWithScript('app.lua', 'SetPackagePath', 'Start');
+  with TGUISprite.Create(FSpriteManager) do
+  begin
+    Name:= 'btnShowRank';
+    Image:= AssetsManager.Require('rank_btn.png');
+    X:= FGameMain.DisplaySize.X/2 - 81* FGameMain.ScreenScale/2;
+    Y:= FGameMain.DisplaySize.Y   - 81 * FGameMain.ScreenScale;
+    Width:= Round(81*FGameMain.ScreenScale);
+    Height:= Round(81*FGameMain.ScreenScale);
+    OnClick:= DoShowRank;
+    //HitTest:= False;
+  end;
 
   //ui
   FMask:= TRectangle.Create(nil);
@@ -214,6 +229,9 @@ begin
   FRankForm.Parent:= Self;
   FRankForm.OnClose:= DoCloseRank;
   FRankForm.Visible:= False;
+
+  FGameMain.RegScriptPackage(TBasicPackage, 'BasicPackage');
+  FGameMain.DriveWithScript('app.lua', 'SetPackagePath', 'Start');
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -221,16 +239,7 @@ begin
   FreeAndNil(EngineFonts);
   FreeAndNil(FStrings);
   FreeAndNil(FGameMain);
-end;
-
-procedure TMainForm.FormMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
-begin
-  if PtInRect(LoginButtonBounds, PointF(X*FGameMain.ScreenScale, Y*FGameMain.ScreenScale)) then
-    Self.ShowLogin;
-
-  if PtInRect(RankButtonBounds, PointF(X*FGameMain.ScreenScale, Y*FGameMain.ScreenScale)) then
-    Self.ShowRank;
+  FreeAndNil(FSpriteManager);
 end;
 
 procedure TMainForm.FormResize(Sender: TObject);
@@ -294,31 +303,9 @@ begin
       Point2f(FGameMain.DisplaySize.X, J * 40.0),
       $FF555555);
 
-  FGameMain.Canvas.UseImage(AssetsManager.Require('head01.png'));
-  FGameMain.Canvas.TexQuad(Quad(LoginButtonBounds.Left,
-                           LoginButtonBounds.Top,
-                           LoginButtonBounds.Width,
-                           LoginButtonBounds.Height),
-                           ColorRectWhite);
-  FGameMain.Canvas.FrameRect(Quad(LoginButtonBounds.Left,
-                             LoginButtonBounds.Top,
-                             LoginButtonBounds.Width,
-                             LoginButtonBounds.Height),
-                            $FFFF0000);
-
-  FGameMain.Canvas.UseImage(AssetsManager.Require('rank_btn.png'));
-  FGameMain.Canvas.TexQuad(Quad(RankButtonBounds.Left,
-                           RankButtonBounds.Top,
-                           RankButtonBounds.Width,
-                           RankButtonBounds.Height),
-                           ColorRectWhite);
-  FGameMain.Canvas.FrameRect(Quad(RankButtonBounds.Left,
-                             RankButtonBounds.Top,
-                             RankButtonBounds.Width,
-                             RankButtonBounds.Height),
-                             $FFFF0000);
-
-
+  FSpriteManager.Render;
+  FSpriteManager.Move(1);
+  FSpriteManager.Dead;
 
   EngineFonts[FontTahoma].DrawText(
     Point2f(4.0, 4.0),
@@ -341,6 +328,18 @@ begin
       Point2f(200.0, 100.0 + (I+FStrings.Count+1)*20),
       FGameMain.Logs[I],
       ColorPair($FFE8FFAA, $FF12C312));
+end;
+
+procedure TMainForm.DoShowLogin(Sender: TObject);
+begin
+  FStrings.Add('login: '+FStrings.Count.ToString);
+  //Self.ShowLogin;
+end;
+
+procedure TMainForm.DoShowRank(Sender: TObject);
+begin
+  //Self.ShowRank;
+  FStrings.Add('rank: '+FStrings.Count.ToString);
 end;
 
 procedure TMainForm.ShowLogin;

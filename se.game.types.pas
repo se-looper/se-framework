@@ -23,14 +23,6 @@ type
   TNotifyInfoEvent = procedure (const AMsg: string) of object;
 
 type
-  //碰撞模式
-  TCollideMode   = (cmCircle, cmRect, cmQuadrangle, cmPolygon);
-  //动画播放模式
-  TAnimPlayMode  = (pmForward, pmBackward, pmPingPong);
-  //渲染模式
-  TDrawMode      = (dmColor, dmRotate, dmTransform);
-  //跳跃状态
-  TJumpState     = (jsNone, jsJumping, jsFalling);
   //文本对齐
   TTextAlignment = (taCenter, taLeading, taTrailing);
 

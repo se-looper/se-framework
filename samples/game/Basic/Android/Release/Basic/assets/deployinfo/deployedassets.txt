@@ -1,6 +1,6 @@
 .\assets\internal\login_title.png
-.\assets\internal\script\app.lua
 .\assets\internal\rank_bg.png
+.\assets\internal\script\app.lua
 .\assets\internal\rank_title.png
 .\assets\internal\login_bg.png
 .\assets\internal\Tahoma9b.xml

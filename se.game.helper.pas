@@ -17,7 +17,7 @@ uses
   System.Classes, System.SysUtils, System.Math,
   PXL.Types, PXL.Classes, PXL.Canvas, PXL.Textures, PXL.Surfaces, PXL.Images,
   PXL.ImageFormats, PXL.Providers, PXL.Formats, PXL.Archives,
-  se.game.consts, se.game.types;
+  se.game.consts, se.game.types, se.utils.client;
 
 type
   TQuadHelper = record helper for TQuad
@@ -286,9 +286,11 @@ procedure TEngineCanvasHelper.DrawImageRegion(const AImage: TEngineImage;
   const AColor: TIntColor; const AMirror, AFlip: Boolean;
   const ABlendingEffect: TBlendingEffect);
 var
-  LSize: TPoint2i;
+  LSize: TPoint2f;
 begin
-  LSize:= AImage.PatternRect[0].Size;
+  LSize.X:= AImage.PatternRect[0].Size.X;
+  LSize.Y:= AImage.PatternRect[0].Size.Y;
+  LSize:= LSize * TClientUtils.ScreenScale;
   Self.UseImageRegion(AImage, ARegionIndex, AMirror, AFlip);
   Self.TexQuad(Quad(APosX, APosY, LSize.X, LSize.Y), AColor, ABlendingEffect);
 end;
@@ -298,10 +300,12 @@ procedure TEngineCanvasHelper.DrawImageRegion(const AImage: TEngineImage;
   const AColor: TIntColor; const AMirror, AFlip: Boolean; const AAngle: Single;
   const AScale: TPoint2f; const ABlendingEffect: TBlendingEffect);
 var
-  LSize: TPoint2i;
+  LSize: TPoint2f;
   LTargetQuad: TQuad;
 begin
-  LSize:= AImage.PatternRect[0].Size;
+  LSize.X:= AImage.PatternRect[0].Size.X;
+  LSize.Y:= AImage.PatternRect[0].Size.Y;
+  LSize:= LSize * TClientUtils.ScreenScale;
   LTargetQuad:= Quad(APosX, APosY, LSize.X, LSize.Y);
   if AAngle <> 0 then
     LTargetQuad:= LTargetQuad.Rotated(LTargetQuad.TopLeft,

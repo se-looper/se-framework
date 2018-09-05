@@ -175,18 +175,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
-            <RemoteName>app.lua</RemoteName>
+        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_bg.png</RemoteName>
+        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>app.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>

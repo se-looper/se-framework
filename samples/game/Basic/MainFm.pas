@@ -186,7 +186,6 @@ begin
   FSpriteManager:= TSpriteManager.Create(Self);
   FSpriteManager.Canvas:= FGameMain.Canvas;
   FSpriteManager.ViewPort:= FGameMain.DisplaySize;
-  FStrings.Add(Format('vx=%d,vy=%d',[FSpriteManager.ViewPort.X, FSpriteManager.ViewPort.Y]));
 
   //right & top
   with TGUISprite.Create(FSpriteManager) do
@@ -210,7 +209,6 @@ begin
     Align:= TAlignMode.amCenterBottom;
     OnClick:= DoShowRank;
     //HitTest:= False;
-    FStrings.Add(Format('x=%g,y=%g',[X, Y]));
   end;
 
   //ui
@@ -248,6 +246,7 @@ begin
   FGameMain.Resize;
   FLoginForm.Resize((Min(Self.ClientWidth/640, Self.ClientHeight/480)));
   FRankForm.Resize((Min(Self.ClientWidth/640, Self.ClientHeight/480)));
+  FSpriteManager.Resize(FGameMain.DisplaySize.X, FGameMain.DisplaySize.Y);
 end;
 
 procedure TMainForm.FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);

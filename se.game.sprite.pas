@@ -122,6 +122,7 @@ type
     procedure DoMove(const AMoveCount: Single); virtual;
     procedure DoCollision(const ASprite: TCustomSprite); virtual;
     function  GetBoundsRect: TIntRect; virtual;
+    procedure Resize; virtual;
     // 对齐方式
     property Align: TAlignMode read FAlign write SetAlign;
     // 边缘
@@ -296,6 +297,7 @@ type
   TGUISprite = class(TAnimatedSprite)
   protected
     procedure DoDraw; override;
+    procedure Resize; override;
   protected
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Single); override;
@@ -361,8 +363,8 @@ type
     procedure Dead;
     // 计算两个Sprite之间的距离
     function SpriteDistance(const S1, S2: TCustomSprite): Real;
-  public
-
+    // 重置大小
+    procedure Resize(const ANewWidth, ANewHeight: Integer);
   public
     // 世界坐标
     property WorldX: Single read FWorldX write FWorldX ;
@@ -524,6 +526,10 @@ begin
       end
     )
   );
+end;
+
+procedure TCustomSprite.Resize;
+begin
 end;
 
 procedure TCustomSprite.Render;
@@ -1096,6 +1102,15 @@ begin
 
 end;
 
+procedure TGUISprite.Resize;
+var
+  I: Integer;
+begin
+  Self.DoLayoutChange;
+  for I:= 0 to FChildList.Count -1 do
+    FChildList[I].Resize;
+end;
+
 {$ENDREGION}
 
 {$REGION 'TSpriteManager'}
@@ -1195,6 +1210,16 @@ begin
       end
     )
   );
+end;
+
+procedure TSpriteManager.Resize(const ANewWidth, ANewHeight: Integer);
+var
+  I: Integer;
+begin
+  FViewPort.X:= ANewWidth;
+  FViewPort.Y:= ANewHeight;  
+  for I:= 0 to FSpriteList.Count -1 do
+    FSpriteList[I].Resize;
 end;
 
 procedure TSpriteManager.AcquireEvents(const AForm: TForm);

@@ -40,6 +40,19 @@ type
                     dmTransform
                    );
 
+  //对齐方式
+  TAlignMode     = (amNone,             
+                    amLeftTop,          
+                    amRightTop, 
+                    amLeftBottom, 
+                    amRightBottom,
+                    amCenter,
+                    amCenterTop,
+                    amCenterBottom,
+                    amCenterLeft,
+                    amCenterRight
+                   );
+
   TSpriteManager = class;
   TCustomSpriteClass = class of TCustomSprite;
 
@@ -48,6 +61,10 @@ type
     FParent: TCustomSprite;
     FChildList: TList<TCustomSprite>;
     FDeaded: Boolean;
+    FMargins: TBounds;
+    FAlign: TAlignMode;
+    procedure DoMarginsChanged(Sender: TObject);
+    procedure DoLayoutChange;
   private
     FName: string;
     FImage: TEngineImage;
@@ -67,7 +84,10 @@ type
     procedure SetImage(const Value: TEngineImage);
     procedure SetX(const Value: Single);
     procedure SetY(const Value: Single);
+    procedure SetHeight(const Value: Integer);
+    procedure SetWidth(const Value: Integer); 
     procedure SetZOrder(const Value: Integer);
+    procedure SetAlign(const Value: TAlignMode);
     function GetWorldX: Single;
     function GetWorldY: Single;
     function GetPatternSize: TPoint2i;
@@ -102,6 +122,10 @@ type
     procedure DoMove(const AMoveCount: Single); virtual;
     procedure DoCollision(const ASprite: TCustomSprite); virtual;
     function  GetBoundsRect: TIntRect; virtual;
+    // 对齐方式
+    property Align: TAlignMode read FAlign write SetAlign;
+    // 边缘
+    property Margins: TBounds read FMargins;
   public
     constructor Create(const AManager: TSpriteManager); virtual;
     destructor Destroy; override;
@@ -134,9 +158,9 @@ type
     // 渲染顺序
     property ZOrder: Integer read FZOrder write SetZOrder;
     // 宽度
-    property Width: Integer read FWidth write FWidth;
+    property Width: Integer read FWidth write SetWidth;
     // 高度
-    property Height: Integer read FHeight write FHeight;
+    property Height: Integer read FHeight write SetHeight;
     // 混合模式
     property BlendMode: TEngineBlendingEffect read FBlendMode write FBlendMode;
     // 是否可移动
@@ -284,6 +308,12 @@ type
     procedure MouseLeave; override;
   public
     constructor Create(const AManager: TSpriteManager); override;
+
+    property X: Single read FX;
+    property Y: Single read FY;
+  published
+    property Align;
+    property Margins;
   end;
 
   //精灵管理器
@@ -364,6 +394,8 @@ begin
   FManager:= AManager;
   FChildList:= TList<TCustomSprite>.Create;
   FParent:= nil;
+  FMargins:= TBounds.Create(RectF(0, 0, 0, 0));
+  FMargins.OnChange:= DoMarginsChanged;
   FZOrderAutoSort:= True;
   //
   FName:= '';
@@ -385,13 +417,15 @@ begin
   FCanFocus:= False;
   FFocused:= False;
   FHitTest:= True;
+  FAlign:= TAlignMode.amNone;
   //
   AManager.Add(Self);
 end;
 
 destructor TCustomSprite.Destroy;
 begin
-  FChildList.Free;
+  FreeAndNil(FMargins);
+  FreeAndNil(FChildList);
   inherited;
 end;
 
@@ -415,10 +449,29 @@ begin
   FParent.ResetDrawOrder;
 end;
 
+procedure TCustomSprite.SetWidth(const Value: Integer);
+begin
+  FWidth:= Round(Value * TClientUtils.ScreenScale);
+end;
+
+procedure TCustomSprite.SetAlign(const Value: TAlignMode);
+begin
+  if FAlign <> Value then  
+  begin
+    FAlign:= Value;
+    DoLayoutChange;
+  end;
+end;
+
 procedure TCustomSprite.SetFocus(const AFocused: Boolean);
 begin
   FFocused:= False;
   if FCanFocus then FFocused:= AFocused;
+end;
+
+procedure TCustomSprite.SetHeight(const Value: Integer);
+begin
+  FHeight:= Round(Value * TClientUtils.ScreenScale);
 end;
 
 procedure TCustomSprite.SetImage(const Value: TEngineImage);
@@ -428,12 +481,12 @@ end;
 
 procedure TCustomSprite.SetX(const Value: Single);
 begin
-  FX:= Value;
+  FX:= Value * TClientUtils.ScreenScale;
 end;
 
 procedure TCustomSprite.SetY(const Value: Single);
-begin
-  FY:= Value;
+begin        
+  FY:= Value * TClientUtils.ScreenScale;
 end;
 
 procedure TCustomSprite.SetZOrder(const Value: Integer);
@@ -663,6 +716,63 @@ begin
     DoMove(AMoveCount);
     for I:= 0 to FChildList.Count - 1 do
       FChildList[I].Move(AMoveCount);
+  end;
+end;
+
+procedure TCustomSprite.DoMarginsChanged(Sender: TObject);
+begin
+  if FAlign <> TAlignMode.amNone then
+    DoLayoutChange;
+end;
+
+procedure TCustomSprite.DoLayoutChange;
+begin
+  case FAlign of
+    amLeftTop: 
+      begin
+        FX:= 0 + FMargins.Left;
+        FY:= 0 + FMargins.Top;
+      end;
+    amRightTop:
+      begin
+        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
+        FY:= 0 + FMargins.Top;
+      end;
+    amLeftBottom:
+      begin
+        FX:= 0 + FMargins.Left;
+        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+      end;
+    amRightBottom:
+      begin
+        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
+        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+      end;
+    amCenter:
+      begin
+        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
+        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+      end;
+    amCenterTop:
+      begin
+        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
+        FY:= 0 + FMargins.Top;
+      end;
+    amCenterBottom:
+      begin
+        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
+        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+      end;
+    amCenterLeft:
+      begin
+        FX:= 0 + FMargins.Left;
+        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+      end;
+    amCenterRight:
+      begin
+        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
+        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+      end;
   end;
 end;
 

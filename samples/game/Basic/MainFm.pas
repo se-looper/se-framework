@@ -26,8 +26,8 @@ uses
   { PXL}
   PXL.Types, PXL.Fonts,
   { SE Framework }
-  se.utils.client, se.game.main, se.game.assetsmanager, se.game.script.package,
-  se.game.sprite;
+  se.utils.client, se.game.helper, se.game.main, se.game.assetsmanager,
+  se.game.script.package, se.game.sprite;
 
 type
   TBasicPackage = class(TScriptPackage)
@@ -186,16 +186,17 @@ begin
   FSpriteManager:= TSpriteManager.Create(Self);
   FSpriteManager.Canvas:= FGameMain.Canvas;
   FSpriteManager.ViewPort:= FGameMain.DisplaySize;
+  FStrings.Add(Format('vx=%d,vy=%d',[FSpriteManager.ViewPort.X, FSpriteManager.ViewPort.Y]));
 
-  //right
+  //right & top
   with TGUISprite.Create(FSpriteManager) do
   begin
     Name:= 'btnShowLogin';
     Image:= AssetsManager.Require('head01.png');
-    X:= FGameMain.DisplaySize.X  - 84* FGameMain.ScreenScale;
-    Y:= 20;
-    Width:= Round(84*FGameMain.ScreenScale);
-    Height:= Round(84*FGameMain.ScreenScale);
+    Width:= Image.Width;
+    Height:= Image.Height;
+    Align:= TAlignMode.amRightTop;
+    Margins.Right:= 30;
     OnClick:= DoShowLogin;
   end;
 
@@ -204,12 +205,12 @@ begin
   begin
     Name:= 'btnShowRank';
     Image:= AssetsManager.Require('rank_btn.png');
-    X:= FGameMain.DisplaySize.X/2 - 81* FGameMain.ScreenScale/2;
-    Y:= FGameMain.DisplaySize.Y   - 81 * FGameMain.ScreenScale;
-    Width:= Round(81*FGameMain.ScreenScale);
-    Height:= Round(81*FGameMain.ScreenScale);
+    Width:= Image.Width;
+    Height:= Image.Height;
+    Align:= TAlignMode.amCenterBottom;
     OnClick:= DoShowRank;
     //HitTest:= False;
+    FStrings.Add(Format('x=%g,y=%g',[X, Y]));
   end;
 
   //ui
@@ -217,7 +218,7 @@ begin
   FMask.Parent:= Self;
   FMask.Align:= TAlignLayout.Contents;
   FMask.Fill.Color:= claBlack;
-  FMask.Opacity:= 0.8;
+  FMask.Opacity:= 0.6;
   FMask.Visible:= False;
 
   FLoginForm:= TLoginForm.Create(nil);
@@ -333,7 +334,7 @@ end;
 procedure TMainForm.DoShowLogin(Sender: TObject);
 begin
   FStrings.Add('login: '+FStrings.Count.ToString);
-  //Self.ShowLogin;
+  Self.ShowLogin;
 end;
 
 procedure TMainForm.DoShowRank(Sender: TObject);

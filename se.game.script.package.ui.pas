@@ -1,3 +1,14 @@
+{******************************************************************************}
+{                                                                              }
+{       SE Network Development Framework                                       }
+{                                                                              }
+{       Copyright (c) 2018 looper(2031056602@qq.com)                           }
+{                                                                              }
+{       Source: https://github.com/looper/se-framework                         }
+{       Homepage: http://www.asphyre.cn                                        }
+{                                                                              }
+{******************************************************************************}
+
 unit se.game.script.package.ui;
 
 interface
@@ -5,7 +16,7 @@ interface
 uses
   System.Classes, System.SysUtils, FMX.Forms, FMX.Controls,
   VerySimple.Lua, VerySimple.Lua.Lib,
-  se.game.script.package, se.game.sprite, se.game.formfactory;
+  se.game.types, se.game.script.package, se.game.sprite, se.game.formfactory;
 
 type
   TUIPackage = class(TScriptPackage)
@@ -13,6 +24,7 @@ type
     FWindowFactory: TWindowFactory;
     FOwnerForm: TForm;
     FSpriteManager: TSpriteManager;
+    FOnPrint: TNotifyInfoEvent;
     procedure DoSpriteClick(Sender: TObject);
     procedure DoControlClick(Sender: TObject);
     procedure SetOwnerForm(const Value: TForm);
@@ -27,6 +39,8 @@ type
 
     property OwnerForm: TForm read FOwnerForm write SetOwnerForm;
     property SpriteManager: TSpriteManager read FSpriteManager write FSpriteManager;
+    //
+    property OnPrint: TNotifyInfoEvent read FOnPrint write FOnPrint;
   published
     function ShowMsg(L: lua_State): Integer;
 
@@ -85,6 +99,19 @@ begin
   FWindowFactory.OwnerForm:= FOwnerForm;
 end;
 
+procedure TUIPackage.RegisterSpriteClickEvent(const ASpriteName: string;
+  const AMsgcode: Integer);
+var
+  LSprite: TCustomSprite;
+begin
+  LSprite:= FSpriteManager.Sprite[ASpriteName];
+  if Assigned(LSprite) then
+  begin
+    LSprite.Tag:= AMsgcode;
+    LSprite.OnClick:= DoSpriteClick;
+  end;
+end;
+
 function TUIPackage.registerClickEvent(L: lua_State): Integer;
 var
   LFormName, LControlName: string;
@@ -100,19 +127,6 @@ begin
     FWindowFactory.RegisterClickEvent(LFormName, LControlName, LMsgcode);
   //
   Result:= 0;
-end;
-
-procedure TUIPackage.RegisterSpriteClickEvent(const ASpriteName: string;
-  const AMsgcode: Integer);
-var
-  LSprite: TCustomSprite;
-begin
-  LSprite:= FSpriteManager.Sprite[ASpriteName];
-  if Assigned(LSprite) then
-  begin
-    LSprite.Tag:= AMsgcode;
-    LSprite.OnClick:= DoSpriteClick;
-  end;
 end;
 
 function TUIPackage.showWindow(L: lua_State): Integer;
@@ -138,7 +152,7 @@ var
   LMsg: string;
 begin
   LMsg:= lua_tostring(L, 2);
-//  MainForm.FStrings.Add(LMsg);
+  FOnPrint(Format('ShowMsg: msg=%s',[LMsg]));
   Result:= 0;
 end;
 

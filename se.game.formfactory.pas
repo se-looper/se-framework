@@ -1,3 +1,14 @@
+{******************************************************************************}
+{                                                                              }
+{       SE Network Development Framework                                       }
+{                                                                              }
+{       Copyright (c) 2018 looper(2031056602@qq.com)                           }
+{                                                                              }
+{       Source: https://github.com/looper/se-framework                         }
+{       Homepage: http://www.asphyre.cn                                        }
+{                                                                              }
+{******************************************************************************}
+
 unit se.game.formfactory;
 
 interface
@@ -27,11 +38,11 @@ type
     /// <summary>
     ///   显示
     /// </summary>
-    procedure Show;  virtual;
+    procedure ShowMe;  virtual;
     /// <summary>
-    ///   关闭
+    ///   隐藏
     /// </summary>
-    procedure Close; virtual;
+    procedure HideMe; virtual;
     /// <summary>
     ///   窗口中的控件点击事件
     /// </summary>
@@ -127,14 +138,14 @@ begin
   Self.Scale.Y:= AScale;
 end;
 
-procedure TWindow.Show;
+procedure TWindow.ShowMe;
 begin
   Self.Visible:= True;
   Self.BringToFront;
   TAnimator.AnimateFloat(Self, 'Opacity', 1.0, 1.0);
 end;
 
-procedure TWindow.Close;
+procedure TWindow.HideMe;
 begin
   Self.Visible:= False;
 end;
@@ -185,6 +196,7 @@ begin
   if not Assigned(AWindow) then
     Exit(False);
   //
+  AWindow.Visible:= False;
   FWindowMap.AddOrSetValue(AName, AWindow);
   Result:= True;
 end;
@@ -205,7 +217,7 @@ begin
   if FWindowMap.TryGetValue(AWindowName, LWindow) then
   begin
     FMask.Visible:= True;
-    LWindow.Show;
+    LWindow.ShowMe;
   end;
 end;
 
@@ -215,7 +227,7 @@ var
 begin
   if FWindowMap.TryGetValue(AWindowName, LWindow) then
   begin
-    LWindow.Close;
+    LWindow.HideMe;
     FMask.Visible:= False;
   end;
 end;

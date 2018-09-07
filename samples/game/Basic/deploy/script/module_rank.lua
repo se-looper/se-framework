@@ -5,7 +5,7 @@ function module_rank:showme()
 	fol.listen:register(self, fol.msgcode.Rank_OnClose,  fol.rank.doClose);
 	--注册点击事件
 	fol.uipackage:registerClickEvent("frmRank", "btnClose",  fol.msgcode.Rank_OnClose);
-	
+	--显示
 	fol.uipackage:showWindow("frmRank");
 end
 

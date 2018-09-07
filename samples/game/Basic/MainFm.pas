@@ -61,6 +61,7 @@ type
     FStrings: TStrings;
     FUIPackage: TUIPackage;
     procedure DoRender(Sender: TObject);
+    procedure DoPrint(const AMsg: string);
   public
     { Public declarations }
   end;
@@ -260,7 +261,6 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   LPackage: TScriptPackage;
-  LWindow: TWindow;
 begin
   FGameMain:= TGameMain.Create(Self);
   FGameMain.OnRender:= DoRender;
@@ -307,12 +307,11 @@ begin
     FUIPackage:= TUIPackage(LPackage);
     FUIPackage.OwnerForm:= Self;
     FUIPackage.SpriteManager:= FGameMain.SpriteManager;
+    FUIPackage.OnPrint:= DoPrint;
     // test: make loginwindow
-    LWindow:= TLoginWindow.Create(nil);
-    FUIPackage.RegWindow('frmLogin', LWindow);
+    FUIPackage.RegWindow('frmLogin', TLoginWindow.Create(nil));
     // test: make rankwindow
-    LWindow:= TRankWindow.Create(nil);
-    FUIPackage.RegWindow('frmRank', LWindow);
+    FUIPackage.RegWindow('frmRank', TRankWindow.Create(nil));
   end;
   FGameMain.DriveWithScript('app.lua', 'InitRunEnvironment', 'Start');
 end;
@@ -336,6 +335,11 @@ begin
 
   // Invoke PXL's multimedia timer, which will call "EngineTiming" to continue drawing on this form with PXL.
   FGameMain.NotifyTick;
+end;
+
+procedure TMainForm.DoPrint(const AMsg: string);
+begin
+  FStrings.Add(AMsg);
 end;
 
 procedure TMainForm.DoRender(Sender: TObject);

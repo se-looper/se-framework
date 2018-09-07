@@ -1,11 +1,11 @@
 local module_login = {};
 
-function module_login:showme()
+function module_login:showme()	
 	--注册lua消息
 	fol.listen:register(self, fol.msgcode.Login_OnLogin,  fol.login.doLogin);
 	--注册点击事件
 	fol.uipackage:registerClickEvent("frmLogin", "btnLogin",  fol.msgcode.Login_OnLogin);
-	
+    --显示
 	fol.uipackage:showWindow("frmLogin");
 end
 

@@ -2,8 +2,9 @@ fol = {
 	uipackage = require "UIPackage",
 };
 
-function InitRunEnvironment(aPath)
-	package.path = package.path .. ";".. aPath .. "?.lua";
+function InitRunEnvironment(aScriptPath, aLibPath)
+	package.path  = package.path .. ";".. aScriptPath .. "?.lua";
+	package.cpath = package.cpath.. ";".. aLibPath;
 	
 	fol.json       = require "lib_json";
 	fol.msgcode    = require "common_msgcode";
@@ -19,8 +20,4 @@ end
 
 function Start()
 	fol.start:init();
-	
-	local str="{\"id\": 199, \"name\": \"testjson\"}";
-	local jsonData = fol.json.decode(str);
-	fol.uipackage:ShowMsg("from lua msg: "..jsonData.name);
 end

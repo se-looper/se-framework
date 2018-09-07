@@ -29,6 +29,11 @@ type
     /// </summary>
     function IndexOfPackageName(const AName: string): Integer;
     /// <summary>
+    ///   调用Lua中的方法, 两个参数
+    /// </summary>
+    procedure InvokeLuaMethod(const ALuaMethodName: string;
+      const AData1, AData2: string); overload;
+    /// <summary>
     ///   调用Lua中的方法, 一个参数
     /// </summary>
     procedure InvokeLuaMethod(const ALuaMethodName: string;
@@ -73,6 +78,16 @@ implementation
 
 { TScriptSystem }
 
+procedure TScriptSystem.InvokeLuaMethod(const ALuaMethodName, AData1, AData2: string);
+var
+  LError: Integer;
+begin
+  lua_getglobal(Self.LuaState, MarshaledAString(UTF8String(ALuaMethodName)));
+  lua_pushstring(Self.LuaState, MarshaledAString(UTF8String(AData1)));
+  lua_pushstring(Self.LuaState, MarshaledAString(UTF8String(AData2)));
+  LError:= lua_pcall(Self.LuaState, 2, 0, 0);
+end;
+
 procedure TScriptSystem.InvokeLuaMethod(const ALuaMethodName, AData: string);
 var
   LError: Integer;
@@ -80,6 +95,14 @@ begin
   lua_getglobal(Self.LuaState, MarshaledAString(UTF8String(ALuaMethodName)));
   lua_pushstring(Self.LuaState, MarshaledAString(UTF8String(AData)));
   LError:= lua_pcall(Self.LuaState, 1, 0, 0);
+end;
+
+procedure TScriptSystem.InvokeLuaMethod(const ALuaMethodName: string);
+var
+  LError: Integer;
+begin
+  lua_getglobal(Self.LuaState, MarshaledAString(UTF8String(ALuaMethodName)));
+  LError:= lua_pcall(Self.LuaState, 0, 0, 0);
 end;
 
 constructor TScriptSystem.Create;
@@ -102,14 +125,6 @@ begin
   for I:= 0 to FPackageList.Count -1 do
     if FPackageList[I].Name = AName then
       Exit(I);
-end;
-
-procedure TScriptSystem.InvokeLuaMethod(const ALuaMethodName: string);
-var
-  LError: Integer;
-begin
-  lua_getglobal(Self.LuaState, MarshaledAString(UTF8String(ALuaMethodName)));
-  LError:= lua_pcall(Self.LuaState, 0, 0, 0);
 end;
 
 procedure TScriptSystem.Open;
@@ -141,7 +156,7 @@ procedure TScriptSystem.Run(const AFileName, AInitRunEnvironmentMethodName,
   AStartMethodName: string);
 begin
   Self.DoFile(AFileName);
-  InvokeLuaMethod(AInitRunEnvironmentMethodName, Self.FilePath);
+  InvokeLuaMethod(AInitRunEnvironmentMethodName, Self.FilePath, Self.LibraryPath);
   InvokeLuaMethod(AStartMethodName);
 end;
 

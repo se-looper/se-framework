@@ -55,7 +55,9 @@ type
     FSpriteManager: TSpriteManager;
   private
     FLogs: TStrings;
+    FScriptLib: string;
     function GetLogs: TArray<string>;
+    procedure SetScriptLib(const Value: string);
   public
     constructor Create(const AForm: TForm);
     destructor Destroy; override;
@@ -218,7 +220,7 @@ procedure TGameMain.EngineTiming(const Sender: TObject);
 begin
   if FCanvas.BeginScene then
   try
-    FCanvas.Device.Clear([TClearType.Color], IntColorBlack);
+    FCanvas.Device.Clear([TClearType.Color], IntColorWhite);
     RenderScene;
     FMultiTimer.Process;
   finally
@@ -293,6 +295,11 @@ begin
     FAssetsRoot:= Value;
     AssetsManager.Mapping(FAssetsRoot, FAssetsType, FAssetsMode);
   end;
+end;
+
+procedure TGameMain.SetScriptLib(const Value: string);
+begin
+  FScriptLib := Value;
 end;
 
 procedure TGameMain.SetScriptRoot(const Value: string);

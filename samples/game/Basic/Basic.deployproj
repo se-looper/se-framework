@@ -70,7 +70,7 @@
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Linux64'"/>
     <ItemGroup Condition="'$(Platform)'=='Win32'">
-        <DeployFile Include="Win32\Debug\Basic.exe" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="Basic.exe" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\</RemoteDir>
             <RemoteName>Basic.exe</RemoteName>
             <DeployClass>ProjectOutput</DeployClass>
@@ -80,7 +80,7 @@
             <Overwrite>True</Overwrite>
             <Required>True</Required>
         </DeployFile>
-        <DeployFile Include="Win32\Release\Basic.exe" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="Basic.exe" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\</RemoteDir>
             <RemoteName>Basic.exe</RemoteName>
             <DeployClass>ProjectOutput</DeployClass>
@@ -175,18 +175,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
-            <RemoteName>app.lua</RemoteName>
+        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_bg.png</RemoteName>
+        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>app.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -241,6 +241,24 @@
         <DeployFile Include="deploy\rank_title.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\</RemoteDir>
             <RemoteName>rank_title.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\module_login.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>module_login.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\module_rank.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>module_rank.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>

@@ -512,7 +512,11 @@ begin
     Exit(Self)
   else
     for I:= 0 to FChildList.Count -1 do
+    begin
       Result:= FChildList[I].SpriteAtPos(X, Y);
+      if Result <> nil then
+        Break;
+    end;
 end;
 
 procedure TCustomSprite.ResetDrawOrder;

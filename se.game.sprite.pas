@@ -732,27 +732,33 @@ begin
 end;
 
 procedure TCustomSprite.DoLayoutChange;
+var
+  LMargins: TFloatRect;
 begin
+  LMargins.Left  := FMargins.Left   * TClientUtils.ScreenScale;
+  LMargins.Top   := FMargins.Top    * TClientUtils.ScreenScale;
+  LMargins.Right := FMargins.Right  * TClientUtils.ScreenScale;
+  LMargins.Bottom:= FMargins.Bottom * TClientUtils.ScreenScale;
   case FAlign of
     amLeftTop: 
       begin
-        FX:= 0 + FMargins.Left;
-        FY:= 0 + FMargins.Top;
+        FX:= 0 + LMargins.Left;
+        FY:= 0 + LMargins.Top;
       end;
     amRightTop:
       begin
-        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
-        FY:= 0 + FMargins.Top;
+        FX:= FManager.ViewPort.X - FWidth - LMargins.Right;
+        FY:= 0 + LMargins.Top;
       end;
     amLeftBottom:
       begin
-        FX:= 0 + FMargins.Left;
-        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+        FX:= 0 + LMargins.Left;
+        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
       end;
     amRightBottom:
       begin
-        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
-        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+        FX:= FManager.ViewPort.X - FWidth  - LMargins.Right;
+        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
       end;
     amCenter:
       begin
@@ -762,21 +768,21 @@ begin
     amCenterTop:
       begin
         FX:= FManager.ViewPort.X / 2 - FWidth / 2;
-        FY:= 0 + FMargins.Top;
+        FY:= 0 + LMargins.Top;
       end;
     amCenterBottom:
       begin
         FX:= FManager.ViewPort.X / 2 - FWidth / 2;
-        FY:= FManager.ViewPort.Y - FHeight - FMargins.Bottom;
+        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
       end;
     amCenterLeft:
       begin
-        FX:= 0 + FMargins.Left;
+        FX:= 0 + LMargins.Left;
         FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
       end;
     amCenterRight:
       begin
-        FX:= FManager.ViewPort.X - FWidth - FMargins.Right;
+        FX:= FManager.ViewPort.X - FWidth - LMargins.Right;
         FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
       end;
   end;
@@ -1063,21 +1069,21 @@ procedure TGUISprite.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Single);
 begin
   if Assigned(FImage) then
-    FColor.Alpha:= 0.1;
+    FColor.Alpha:= 0.6;
   inherited;
 end;
 
 procedure TGUISprite.MouseEnter;
 begin
   if Assigned(FImage) then
-    FColor.Red:= FColor.Red + 100;
+    FColor.Alpha:= 0.8;
   inherited;
 end;
 
 procedure TGUISprite.MouseLeave;
 begin
   if Assigned(FImage) then
-    FColor.Red:= FColor.Red - 100;
+    FColor.Alpha:= 1.0;
   inherited;
 end;
 
@@ -1177,7 +1183,8 @@ var
 begin
   Result:= nil;
   for I:= 0 to FSpriteList.Count -1 do
-    if FSpriteList.Items[I].Name = Name then Exit(FSpriteList.Items[I]);
+    if FSpriteList.Items[I].Name = Name then
+      Exit(FSpriteList.Items[I]);
 end;
 
 procedure TSpriteManager.Add(const ASprite: TCustomSprite);
@@ -1216,6 +1223,8 @@ procedure TSpriteManager.Resize(const ANewWidth, ANewHeight: Integer);
 var
   I: Integer;
 begin
+  if (FViewPort.X = ANewWidth) and (FViewPort.Y = ANewHeight) then Exit;
+  //  
   FViewPort.X:= ANewWidth;
   FViewPort.Y:= ANewHeight;  
   for I:= 0 to FSpriteList.Count -1 do

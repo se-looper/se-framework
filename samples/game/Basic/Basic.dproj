@@ -458,13 +458,7 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_72x72.png" Configuration="Debug" Class="iPad_AppIcon72"/>
-                <DeployFile LocalName="deploy\rank_bg.png" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>.\assets\internal\</RemoteDir>
-                        <RemoteName>rank_bg.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_40x40.png" Configuration="Debug" Class="iPhone_Spotlight40"/>
                 <DeployFile LocalName="deploy\script\app.lua" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>.\assets\internal\script\</RemoteDir>
@@ -473,14 +467,14 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Debug" Class="Android_SplashImage960"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
-                <DeployFile LocalName="Win32\Debug\Basic.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Basic.exe</RemoteName>
+                <DeployFile LocalName="deploy\rank_bg.png" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\</RemoteDir>
+                        <RemoteName>rank_bg.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_40x40.png" Configuration="Debug" Class="iPhone_Spotlight40"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
                 <DeployFile LocalName="d:\tp\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2208x1242.png" Configuration="Debug" Class="iPhone_Launch2208"/>
@@ -498,12 +492,6 @@
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png" Configuration="Release" Class="Android_SplashImage470">
                     <Platform Name="Android">
                         <RemoteName>splash_image.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win32\Release\Basic.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Basic.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -599,6 +587,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="deploy\script\common_types.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_types.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="iOSDevice64\Debug\Basic" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_100x100.png" Configuration="Debug" Class="iPad_SpotLight100"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Configuration="Debug" Class="Android_LauncherIcon48">
@@ -631,6 +626,13 @@
                 <DeployFile LocalName="iOSSimulator\Debug\Basic" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="Android\Debug\styles.xml" Configuration="Debug" Class="AndroidSplashStyles">
                     <Platform Name="Android">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="deploy\script\common_dialog.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_dialog.lua</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -684,24 +686,25 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="iOSDevice32\Debug\Basic.info.plist" Configuration="Debug" Class="ProjectiOSInfoPList"/>
-                <DeployFile LocalName="Win32\Debug\Basic.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_640x960.png" Configuration="Debug" Class="iPhone_Launch640"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_60x60.png" Configuration="Debug" Class="iPhone_AppIcon60"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageLandscape_1024x768.png" Configuration="Debug" Class="iPad_Launch1024x768"/>
-                <DeployFile LocalName="Android\Debug\AndroidManifest.xml" Configuration="Debug" Class="ProjectAndroidManifest"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Debug" Class="Android_LauncherIcon72"/>
-                <DeployFile LocalName="Android\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest">
-                    <Platform Name="Android">
+                <DeployFile LocalName="Basic.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Basic.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="iOSDevice32\Debug\Basic.info.plist" Configuration="Debug" Class="ProjectiOSInfoPList"/>
+                <DeployFile LocalName="Win32\Debug\Basic.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="..\..\..\Media\Tahoma9b.xml" Configuration="Debug" Class="File">
                     <Platform Name="iOSDevice64">
                         <RemoteName>Tahoma9b.xml</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_640x960.png" Configuration="Debug" Class="iPhone_Launch640"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_60x60.png" Configuration="Debug" Class="iPhone_AppIcon60"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageLandscape_1024x768.png" Configuration="Debug" Class="iPad_Launch1024x768"/>
+                <DeployFile LocalName="Android\Debug\AndroidManifest.xml" Configuration="Debug" Class="ProjectAndroidManifest"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png" Configuration="Debug" Class="Android_LauncherIcon72"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_50x50.png" Configuration="Debug" Class="iPad_SpotLight50"/>
                 <DeployFile LocalName="d:\tp\lib\android\debug\x86\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeX86File"/>
                 <DeployFile LocalName="D:\Android\android-ndk-r10\prebuilt\android-arm\gdbserver\gdbserver" Configuration="Debug" Class="AndroidGDBServer"/>
@@ -746,6 +749,11 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_750x1334.png" Configuration="Debug" Class="iPhone_Launch750"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png" Configuration="Debug" Class="iPad_AppIcon152"/>
+                <DeployFile LocalName="Android\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest">
+                    <Platform Name="Android">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="deploy\android\lib\armeabi-v7a\liblua.so" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>library\lib\armeabi-v7a\</RemoteDir>
@@ -784,6 +792,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="deploy\script\common_msgcode.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_msgcode.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="iOSSimulator\Debug\Basic.info.plist" Configuration="Debug" Class="ProjectiOSInfoPList"/>
                 <DeployFile LocalName="deploy\item_bg3.png" Configuration="Release" Class="File">
                     <Platform Name="Android">
@@ -794,6 +809,13 @@
                 </DeployFile>
                 <DeployFile LocalName="Android\Debug\classes.dex" Configuration="Debug" Class="AndroidClassesDexFile"/>
                 <DeployFile LocalName="$(BDS)\lib\android\debug\classes.dex" Configuration="Debug" Class="AndroidClassesDexFile"/>
+                <DeployFile LocalName="deploy\script\common_netcommand.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_netcommand.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Android\Debug\AndroidManifest.xml" Configuration="Debug" Class="ProjectAndroidManifest">
                     <Platform Name="Android">
                         <Overwrite>true</Overwrite>
@@ -892,7 +914,20 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Basic.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Basic.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_144x144.png" Configuration="Debug" Class="iPad_AppIcon144"/>
+                <DeployFile LocalName="deploy\script\common_msgcode_net.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_msgcode_net.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
@@ -943,6 +978,20 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_114x114.png" Configuration="Debug" Class="iPhone_AppIcon114"/>
+                <DeployFile LocalName="deploy\script\common_listen.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>common_listen.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="deploy\script\lib_json.lua" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\script\</RemoteDir>
+                        <RemoteName>lib_json.lua</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="iOSDevice64\Debug\Basic.info.plist" Configuration="Debug" Class="ProjectiOSInfoPList"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_320x480.png" Configuration="Debug" Class="iPhone_Launch320"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImagePortrait_1536x2008.png" Configuration="Debug" Class="iPad_Launch1536"/>

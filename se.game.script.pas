@@ -49,21 +49,24 @@ type
     ///   对外开放的包注册方法, 实际上只是把包加入到FPackageList中
     ///   这个方法目前必须在Run之前调用才有效
     /// </summary>
-    procedure RegPackage(const AClass: TScriptPackageClass; const AName: string);
+    function RegPackage(const AClass: TScriptPackageClass;
+      const AName: string): TScriptPackage;
     /// <summary>
     ///   执行某个lua脚本文件
     /// </summary>
-    /// <param name="ASetPackagePathMethodName">
-    ///   lua中设置package.path的方法名, 必须有这个方法而且必须是公共方法
+    /// <param name="AInitRunEnvironmentMethodName">
+    ///   1、在这里设置package.path
+    ///   2、在这个lua方法中require各个模块
+    ///   3、必须有这个方法而且必须是公共方法
     /// </param>
-    /// <param name="AInitModuleMethodName">
-    ///   lua中require各个模块的方法名, 必须有这个方法而且必须是公共方法
+    /// <param name="AStartMethodName">
+    ///   启动入口方法名, 必须有这个方法而且必须是公共方法
     /// </param>
     /// <remark>
     ///   这个只能在启动时调用一次
     /// </remark>
-    procedure Run(const AFileName, ASetPackagePathMethodName,
-      AInitModuleMethodName: string);
+    procedure Run(const AFileName, AInitRunEnvironmentMethodName,
+      AStartMethodName: string);
   end;
 
 implementation
@@ -121,25 +124,25 @@ begin
   end;
 end;
 
-procedure TScriptSystem.RegPackage(const AClass: TScriptPackageClass; const AName: string);
+function TScriptSystem.RegPackage(const AClass: TScriptPackageClass;
+  const AName: string): TScriptPackage;
 var
-  LPackage: TScriptPackage;
   LIndex: Integer;
 begin
-  if AName = '' then Exit;
-  LPackage:= AClass.Create;
-  LPackage.Name:= AName;
+  if AName = '' then Exit(nil);
+  Result:= AClass.Create;
+  Result.Name:= AName;
   LIndex:= IndexOfPackageName(AName);
   if LIndex >= 0 then FPackageList.Delete(LIndex);
-  FPackageList.Add(LPackage);
+  FPackageList.Add(Result);
 end;
 
-procedure TScriptSystem.Run(const AFileName, ASetPackagePathMethodName,
-  AInitModuleMethodName: string);
+procedure TScriptSystem.Run(const AFileName, AInitRunEnvironmentMethodName,
+  AStartMethodName: string);
 begin
   Self.DoFile(AFileName);
-  InvokeLuaMethod(ASetPackagePathMethodName, Self.FilePath);
-  InvokeLuaMethod(AInitModuleMethodName);
+  InvokeLuaMethod(AInitRunEnvironmentMethodName, Self.FilePath);
+  InvokeLuaMethod(AStartMethodName);
 end;
 
 end.

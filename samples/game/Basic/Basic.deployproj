@@ -175,18 +175,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_bg.png</RemoteName>
+        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>app.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\script\app.lua" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
-            <RemoteName>app.lua</RemoteName>
+        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\</RemoteDir>
+            <RemoteName>rank_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -283,6 +283,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\script\common_types.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_types.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\res\drawable-mdpi\</RemoteDir>
             <RemoteName>ic_launcher.png</RemoteName>
@@ -324,6 +333,15 @@
             <RemoteName>styles.xml</RemoteName>
             <DeployClass>AndroidSplashStyles</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\common_dialog.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_dialog.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -445,9 +463,27 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\script\common_msgcode.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_msgcode.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="deploy\item_bg3.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\</RemoteDir>
             <RemoteName>item_bg3.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\common_netcommand.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_netcommand.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -591,6 +627,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\script\common_msgcode_net.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_msgcode_net.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>gdbserver</RemoteName>
@@ -639,6 +684,24 @@
         <DeployFile Include="deploy\item_bg1.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\</RemoteDir>
             <RemoteName>item_bg1.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\common_listen.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>common_listen.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\script\lib_json.lua" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\script\</RemoteDir>
+            <RemoteName>lib_json.lua</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>

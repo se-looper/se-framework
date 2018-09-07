@@ -67,6 +67,8 @@ type
     procedure InvokeLuaMethod(const ALuaMethodName: string;
       const AData: string); overload;
   public
+    constructor Create; virtual; abstract;
+
     /// <summary>
     ///   包加载方法
     /// </summary>

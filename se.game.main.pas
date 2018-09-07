@@ -17,7 +17,8 @@ uses
   System.Classes, System.SysUtils, System.UITypes,
   FMX.Forms, FMX.Dialogs,
   PXL.Types, PXL.Timing, PXL.Devices, PXL.Canvas, PXL.Providers, PXL.FMBridge,
-  se.utils.client, se.game.assetsmanager, se.game.script, se.game.script.package;
+  se.utils.client, se.game.assetsmanager, se.game.script, se.game.script.package,
+  se.game.sprite;
 
 type
   TGameMain = class
@@ -51,6 +52,8 @@ type
     procedure DoScriptPrint(AMsg: string);
     procedure DoScriptError(AMsg: string);
   private
+    FSpriteManager: TSpriteManager;
+  private
     FLogs: TStrings;
     function GetLogs: TArray<string>;
   public
@@ -68,12 +71,13 @@ type
     /// <summary>
     ///   注册脚本包
     /// </summary>
-    procedure RegScriptPackage(const AClass: TScriptPackageClass; const AName: string);
+    function RegScriptPackage(const AClass: TScriptPackageClass;
+      const AName: string): TScriptPackage;
     /// <summary>
     ///   从脚本驱动
     /// </summary>
-    procedure DriveWithScript(const ALuaFile, ASetPackagePathMethodName,
-      AInitModuleMethodName: string);
+    procedure DriveWithScript(const ALuaFile, AInitRunEnvironmentMethodName,
+      AStartMethodName: string);
   public
     /// <summary>
     ///   数据更新事件
@@ -121,6 +125,11 @@ type
     ///   脚本文件的根目录
     /// </summary>
     property ScriptRoot: string read FScriptRoot write SetScriptRoot;
+  public
+    /// <summary>
+    ///   精灵管理器
+    /// </summary>
+    property SpriteManager: TSpriteManager read FSpriteManager;
   public
     /// <summary>
     ///   Log
@@ -176,6 +185,9 @@ begin
   FScriptSystem:= TScriptSystem.Create;
   FScriptSystem.OnPrint:= DoScriptPrint;
   FScriptSystem.OnError:= DoScriptError;
+  //
+  FSpriteManager:= TSpriteManager.Create(AForm);
+  FSpriteManager.Canvas:= FCanvas;
 
   Self.Resize;
   AssetsManager.Canvas:= FCanvas;
@@ -185,6 +197,7 @@ destructor TGameMain.Destroy;
 begin
   FreeAndNil(FMultiTimer);
   FreeAndNil(FScriptSystem);
+  FreeAndNil(FSpriteManager);
   FreeAndNil(FCanvas);
   FreeAndNil(FDevice);
   FreeAndNil(FDeviceProvider);
@@ -196,6 +209,8 @@ end;
 procedure TGameMain.EngineProcess(const Sender: TObject);
 begin
   Inc(FTicks);
+  FSpriteManager.Move(1);
+  FSpriteManager.Dead;
   if Assigned(FOnUpdate) then FOnUpdate(Sender);
 end;
 
@@ -203,6 +218,7 @@ procedure TGameMain.EngineTiming(const Sender: TObject);
 begin
   if FCanvas.BeginScene then
   try
+    FCanvas.Device.Clear([TClearType.Color], IntColorBlack);
     RenderScene;
     FMultiTimer.Process;
   finally
@@ -212,6 +228,7 @@ end;
 
 procedure TGameMain.RenderScene;
 begin
+  FSpriteManager.Render;
   if Assigned(FOnRender) then FOnRender(nil);
   FCanvas.Flush;
 end;
@@ -231,6 +248,7 @@ begin
   FDisplaySize.X:= TClientUtils.PhysicalScreenSize.cx;
   FDisplaySize.Y:= TClientUtils.PhysicalScreenSize.cy;
 {$ENDIF}
+  FSpriteManager.Resize(FDisplaySize.X, FDisplaySize.Y);
 end;
 
 function TGameMain.GetScreenScale: Single;
@@ -301,15 +319,16 @@ begin
   FLogs.Add('[INFO] ' + AMsg);
 end;
 
-procedure TGameMain.RegScriptPackage(const AClass: TScriptPackageClass; const AName: string);
+function TGameMain.RegScriptPackage(const AClass: TScriptPackageClass;
+  const AName: string): TScriptPackage;
 begin
-  FScriptSystem.RegPackage(AClass, AName);
+  Result:= FScriptSystem.RegPackage(AClass, AName);
 end;
 
-procedure TGameMain.DriveWithScript(const ALuaFile, ASetPackagePathMethodName,
-  AInitModuleMethodName: string);
+procedure TGameMain.DriveWithScript(const ALuaFile, AInitRunEnvironmentMethodName,
+  AStartMethodName: string);
 begin
-  FScriptSystem.Run(ALuaFile, ASetPackagePathMethodName, AInitModuleMethodName);
+  FScriptSystem.Run(ALuaFile, AInitRunEnvironmentMethodName, AStartMethodName);
 end;
 
 end.

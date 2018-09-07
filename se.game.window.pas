@@ -9,16 +9,15 @@
 {                                                                              }
 {******************************************************************************}
 
-unit se.game.formfactory;
+unit se.game.window;
 
 interface
 
 uses
   System.Classes, System.SysUtils, System.Generics.Collections,
   System.UITypes, System.UIConsts, System.Generics.Defaults,
-  FMX.Types, FMX.Objects, FMX.Ani, FMX.Controls, FMX.Graphics, FMX.Edit,
-  FMX.ScrollBox, FMX.BehaviorManager, FMX.Forms,
-  se.game.assetsmanager, se.game.formfactory.style;
+  FMX.Types, FMX.Objects, FMX.Ani, FMX.Controls, FMX.Graphics, FMX.Forms,
+  se.game.window.style;
 
 type
   TWindow = class(TRectangle)
@@ -51,9 +50,9 @@ type
 
   TWindowFactory = class
   private
+    FOwnerForm: TForm;
     FMask: TRectangle;
     FWindowMap: TObjectDictionary<string, TWindow>;
-    FOwnerForm: TForm;
     procedure SetOwnerForm(const Value: TForm);
   public
     constructor Create;
@@ -68,7 +67,7 @@ type
     /// </summary>
     function RegWindow(const AName: string; AWindow: TWindow): Boolean;
     /// <summary>
-    ///   一般传入主窗口(Application.MainForm)
+    ///   所在窗口,一般传入主窗口Application.MainForm
     /// </summary>
     property OwnerForm: TForm read FOwnerForm write SetOwnerForm;
   public
@@ -98,8 +97,6 @@ type
 
 implementation
 
-uses ONE.Toast;
-
 { TWindow }
 
 constructor TWindow.Create(AOwner: TComponent);
@@ -107,8 +104,8 @@ begin
   inherited Create(AOwner);
   FControlMap:= TObjectDictionary<string, TControl>.Create([doOwnsValues]);
   Self.Opacity:= 0;
-  Self.Width:= 300;
-  Self.Height:= 244;
+  Self.Width:= 320;
+  Self.Height:= 240;
   Self.Align:= TAlignLayout.Center;
   Self.Fill.Kind:= TBrushKind.Bitmap;
   Self.Stroke.Kind:= TBrushKind.None;
@@ -160,7 +157,8 @@ begin
   FMask:= TRectangle.Create(nil);
   FMask.Align:= TAlignLayout.Contents;
   FMask.Fill.Color:= claBlack;
-  FMask.Opacity:= 0.6;
+  FMask.Stroke.Kind:= TBrushKind.None;
+  FMask.Opacity:= 0.5;
   FMask.Visible:= False;
 end;
 

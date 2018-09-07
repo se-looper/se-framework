@@ -60,7 +60,7 @@ type
     ///   执行某个lua脚本文件
     /// </summary>
     /// <param name="AInitRunEnvironmentMethodName">
-    ///   1、在这里设置package.path
+    ///   1、在这里设置package.path, package.cpath
     ///   2、在这个lua方法中require各个模块
     ///   3、必须有这个方法而且必须是公共方法
     /// </param>

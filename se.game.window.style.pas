@@ -9,7 +9,7 @@
 {                                                                              }
 {******************************************************************************}
 
-unit se.game.formfactory.style;
+unit se.game.window.style;
 
 interface
 
@@ -47,8 +47,6 @@ type
   end;
 
 implementation
-
-uses ONE.Toast;
 
 { TUIEvent }
 

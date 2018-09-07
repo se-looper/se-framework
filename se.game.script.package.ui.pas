@@ -16,7 +16,7 @@ interface
 uses
   System.Classes, System.SysUtils, FMX.Forms, FMX.Controls,
   VerySimple.Lua, VerySimple.Lua.Lib,
-  se.game.types, se.game.script.package, se.game.sprite, se.game.formfactory;
+  se.game.types, se.game.script.package, se.game.sprite, se.game.window;
 
 type
   TUIPackage = class(TScriptPackage)
@@ -24,28 +24,50 @@ type
     FWindowFactory: TWindowFactory;
     FOwnerForm: TForm;
     FSpriteManager: TSpriteManager;
-    FOnPrint: TNotifyInfoEvent;
-    procedure DoSpriteClick(Sender: TObject);
-    procedure DoControlClick(Sender: TObject);
     procedure SetOwnerForm(const Value: TForm);
+  private
+    /// <summary>
+    ///   注册指定精灵的点击事件
+    /// </summary>
     procedure RegisterSpriteClickEvent(const ASpriteName: string;
       const AMsgcode: Integer);
+    /// <summary>
+    ///   精灵点击事件
+    /// </summary>
+    procedure DoSpriteClick(Sender: TObject);
+    /// <summary>
+    ///   FMX控件点击事件
+    /// </summary>
+    procedure DoControlClick(Sender: TObject);
   public
     constructor Create; override;
     destructor Destroy; override;
 
     procedure RegFunctions; override;
+    /// <summary>
+    ///   注册一个窗口实例到WindowFactory
+    /// </summary>
     function RegWindow(const AName: string; AWindow: TWindow): Boolean;
-
+    /// <summary>
+    ///   所在窗口,一般传入主窗口Application.MainForm
+    /// </summary>
     property OwnerForm: TForm read FOwnerForm write SetOwnerForm;
+    /// <summary>
+    ///   精灵管理器
+    /// </summary>
     property SpriteManager: TSpriteManager read FSpriteManager write FSpriteManager;
-    //
-    property OnPrint: TNotifyInfoEvent read FOnPrint write FOnPrint;
   published
-    function ShowMsg(L: lua_State): Integer;
-
+    /// <summary>
+    ///   注册窗口中指定控件的点击事件
+    /// </summary>
     function registerClickEvent(L: lua_State): Integer;
+    /// <summary>
+    ///   显示窗口
+    /// </summary>
     function showWindow(L: lua_State): Integer;
+    /// <summary>
+    ///   关闭窗口
+    /// </summary>
     function closeWindow(L: lua_State): Integer;
   end;
 
@@ -80,7 +102,6 @@ end;
 procedure TUIPackage.RegFunctions;
 begin
   inherited;
-  RegFunction('ShowMsg','ShowMsg');
   RegFunction('registerClickEvent','registerClickEvent');
   RegFunction('showWindow','showWindow');
   RegFunction('closeWindow','closeWindow');
@@ -144,15 +165,6 @@ var
 begin
   LFormName:= lua_tostring(L, 2);
   FWindowFactory.CloseWindow(LFormName);
-  Result:= 0;
-end;
-
-function TUIPackage.ShowMsg(L: lua_State): Integer;
-var
-  LMsg: string;
-begin
-  LMsg:= lua_tostring(L, 2);
-  FOnPrint(Format('ShowMsg: msg=%s',[LMsg]));
   Result:= 0;
 end;
 

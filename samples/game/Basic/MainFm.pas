@@ -26,7 +26,7 @@ uses
   { SE Framework }
   se.utils.client, se.game.helper, se.game.main, se.game.assetsmanager,
   se.game.script.package, se.game.sprite, se.game.script.package.ui,
-  se.game.formfactory, se.game.formfactory.style;
+  se.game.window, se.game.window.style;
 
 type
   TLoginWindow = class(TWindow)
@@ -44,7 +44,7 @@ type
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
 
-    procedure Show; override;
+    procedure ShowMe; override;
   end;
 
   TMainForm = class(TForm)
@@ -97,6 +97,8 @@ var
   LUserNameEdit: TEdit;
 begin
   inherited Create(AOwner);
+  Self.Width:= 300;
+  Self.Height:= 244;
   Self.Fill.Bitmap.Bitmap.LoadFromFile(AssetsManager.RequireFile('login_bg.png'));
   //
   LTitleImage:= TImage.Create(Self);
@@ -229,7 +231,7 @@ begin
   FRankItems.Add(Result);
 end;
 
-procedure TRankWindow.Show;
+procedure TRankWindow.ShowMe;
 var
   I: Integer;
   LRank: TArray<string>;
@@ -307,7 +309,6 @@ begin
     FUIPackage:= TUIPackage(LPackage);
     FUIPackage.OwnerForm:= Self;
     FUIPackage.SpriteManager:= FGameMain.SpriteManager;
-    FUIPackage.OnPrint:= DoPrint;
     // test: make loginwindow
     FUIPackage.RegWindow('frmLogin', TLoginWindow.Create(nil));
     // test: make rankwindow

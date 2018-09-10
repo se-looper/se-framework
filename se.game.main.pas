@@ -39,6 +39,9 @@ type
     function GetFullDeviceTechString: string;
     function GetFrameRate: Integer;
   private
+    /// <summary>
+    ///   资源管理
+    /// </summary>
     FAssetsRoot: string;
     FAssetsMode: TAssetsModes;
     FAssetsType: TAssetsTypes;
@@ -46,18 +49,25 @@ type
     procedure SetAssetsMode(const Value: TAssetsModes);
     procedure SetAssetsRoot(const Value: string);
   private
+    /// <summary>
+    ///   脚本系统(LUA)
+    /// </summary>
     FScriptSystem: TScriptSystem;
     FScriptRoot: string;
     procedure SetScriptRoot(const Value: string);
     procedure DoScriptPrint(AMsg: string);
     procedure DoScriptError(AMsg: string);
   private
+    /// <summary>
+    ///   精灵管理器
+    /// </summary>
     FSpriteManager: TSpriteManager;
   private
+    /// <summary>
+    ///   日志
+    /// </summary>
     FLogs: TStrings;
-    FScriptLib: string;
     function GetLogs: TArray<string>;
-    procedure SetScriptLib(const Value: string);
   public
     constructor Create(const AForm: TForm);
     destructor Destroy; override;
@@ -295,11 +305,6 @@ begin
     FAssetsRoot:= Value;
     AssetsManager.Mapping(FAssetsRoot, FAssetsType, FAssetsMode);
   end;
-end;
-
-procedure TGameMain.SetScriptLib(const Value: string);
-begin
-  FScriptLib := Value;
 end;
 
 procedure TGameMain.SetScriptRoot(const Value: string);

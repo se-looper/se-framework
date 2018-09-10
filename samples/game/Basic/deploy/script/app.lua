@@ -1,5 +1,6 @@
 fol = {
-	uipackage = require "UIPackage",
+	uipkg = require "UIPackage",
+	soundpkg  = require "SoundPackage",
 };
 
 function InitRunEnvironment(aScriptPath, aLibPath)
@@ -20,4 +21,8 @@ end
 
 function Start()
 	fol.start:init();
+end
+
+function OutputDebugString(aString)
+	print(aString);
 end

@@ -25,7 +25,8 @@ uses
   PXL.Types, PXL.Fonts,
   { SE Framework }
   se.utils.client, se.game.helper, se.game.main, se.game.assetsmanager,
-  se.game.script.package, se.game.sprite, se.game.script.package.ui,
+  se.game.sprite,
+  se.game.script.package, se.game.script.package.ui, se.game.script.package.sound,
   se.game.window, se.game.window.style;
 
 type
@@ -303,6 +304,7 @@ begin
     //HitTest:= False;
   end;
 
+  // ui package
   LPackage:= FGameMain.RegScriptPackage(TUIPackage, 'UIPackage');
   if Assigned(LPackage) then
   begin
@@ -314,6 +316,9 @@ begin
     // test: make rankwindow
     FUIPackage.RegWindow('frmRank', TRankWindow.Create(nil));
   end;
+  // sound package
+  LPackage:= FGameMain.RegScriptPackage(TSoundPackage, 'SoundPackage');
+  // drive with lua
   FGameMain.DriveWithScript('app.lua', 'InitRunEnvironment', 'Start');
 end;
 

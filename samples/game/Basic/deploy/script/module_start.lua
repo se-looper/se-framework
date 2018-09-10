@@ -5,8 +5,10 @@ function module_start:init()
 	fol.listen:register(self, fol.msgcode.Start_OnClickShowLogin,     fol.start.showLogin);
 	fol.listen:register(self, fol.msgcode.Start_OnClickShowRank,      fol.start.showRank);
 	--×¢²áµã»÷ÊÂ¼þ
-	fol.uipackage:registerClickEvent("MainForm", "btnShowLogin",      fol.msgcode.Start_OnClickShowLogin);
-	fol.uipackage:registerClickEvent("MainForm", "btnShowRank",       fol.msgcode.Start_OnClickShowRank);
+	fol.uipkg:registerClickEvent("MainForm", "btnShowLogin",      fol.msgcode.Start_OnClickShowLogin);
+	fol.uipkg:registerClickEvent("MainForm", "btnShowRank",       fol.msgcode.Start_OnClickShowRank);
+	--²¥·Å±³¾°ÉùÒô
+	fol.soundpkg:play("background.mp3");
 end
 
 function module_start:showLogin()

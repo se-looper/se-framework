@@ -171,10 +171,10 @@ end;
 
 procedure TWindowFactory.Resize(const AScale: Single);
 var
-  LPair: TPair<string,TWindow>;
+  LWindow: TWindow;
 begin
-  for LPair in FWindowMap do
-    LPair.Value.Resize(AScale);
+  for LWindow in FWindowMap.Values do
+    LWindow.Resize(AScale);
 end;
 
 procedure TWindowFactory.SetOwnerForm(const Value: TForm);

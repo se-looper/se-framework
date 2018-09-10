@@ -6,7 +6,7 @@
         <MainSource>Basic.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Android</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1119</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -158,7 +158,7 @@
         <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
         <BT_BuildType>Debug</BT_BuildType>
         <Android_SplashImage470>$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
-        <DCC_UnitSearchPath>..\..\..\;..\..\..\depends;..\..\..\depends\PXL-Engine;..\..\..\depends\VerySimpleLua;..\..\..\depends\X-SuperObject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\;..\..\..\depends;..\..\..\depends\PXL-Engine;..\..\..\depends\VerySimpleLua;..\..\..\depends\X-SuperObject;..\..\..\depends\ZSound-Bass;..\..\..\depends\Bass;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_iOSDevice32)'!=''">
@@ -314,7 +314,7 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <DCC_UnitSearchPath>..\..\..\;..\..\..\depends;..\..\..\depends\PXL-Engine;..\..\..\depends\VerySimpleLua;..\..\..\depends\X-SuperObject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\;..\..\..\depends;..\..\..\depends\PXL-Engine;..\..\..\depends\VerySimpleLua;..\..\..\depends\X-SuperObject;..\..\..\depends\ZSound-Bass;..\..\..\depends\Bass;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ExeOutput>.\</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -458,13 +458,7 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_72x72.png" Configuration="Debug" Class="iPad_AppIcon72"/>
-                <DeployFile LocalName="deploy\rank_bg.png" Configuration="Release" Class="File">
-                    <Platform Name="Android">
-                        <RemoteDir>.\assets\internal\</RemoteDir>
-                        <RemoteName>rank_bg.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
                 <DeployFile LocalName="deploy\script\app.lua" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>.\assets\internal\script\</RemoteDir>
@@ -473,8 +467,14 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Debug" Class="Android_SplashImage960"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_40x40.png" Configuration="Debug" Class="iPhone_Spotlight40"/>
+                <DeployFile LocalName="deploy\rank_bg.png" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>.\assets\internal\</RemoteDir>
+                        <RemoteName>rank_bg.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="d:\tp\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2208x1242.png" Configuration="Debug" Class="iPhone_Launch2208"/>
@@ -497,6 +497,13 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="deploy\android\lib\armeabi\libbass.so" Configuration="Release" Class="File">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi\</RemoteDir>
+                        <RemoteName>libbass.so</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

@@ -14,13 +14,25 @@ unit se.game.window.style;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Generics.Collections,
-  System.UITypes, System.UIConsts, System.Generics.Defaults,
+  System.Classes, System.SysUtils, System.TypInfo, System.Rtti, System.UITypes,
+  System.Generics.Collections, System.UIConsts, System.Generics.Defaults,
   FMX.Types, FMX.Objects, FMX.Ani, FMX.Controls, FMX.Graphics, FMX.Edit,
   FMX.ScrollBox, FMX.BehaviorManager, FMX.Forms;
 
 type
   TUIEvent = class
+  private
+    /// <summary>
+    ///   获取TUIEvent中指定事件名称的事件地址(只能在published域)
+    /// </summary>
+    class function RequireMethod(const AEventName: string): Pointer; static;
+  public
+    /// <summary>
+    ///   设置控件的属性(指向TUIEvent中的某个事件)
+    /// </summary>
+    class procedure SetEvent(const AControl: TControl;
+      const AEventName, ATargetEventName: string); static;
+  published
     class procedure ImageButtonMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Single);
     class procedure ImageButtonMouseUp(Sender: TObject; Button: TMouseButton;
@@ -49,6 +61,48 @@ type
 implementation
 
 { TUIEvent }
+
+class procedure TUIEvent.SetEvent(const AControl: TControl;
+  const AEventName, ATargetEventName: string);
+var
+  RTX: TRttiContext;
+  RT: TRttiType;
+  RF: TRttiField;
+  RV: TValue;
+begin
+  RTX:= TRttiContext.Create;
+  try
+    RT:= RTX.GetType(AControl.ClassType);
+    RF:= RT.GetField(AEventName);
+    if Assigned(RF) then
+    begin
+      RV:= RF.GetValue(AControl);
+      TValueData(RV).FAsMethod.Code:= TUIEvent.RequireMethod(ATargetEventName);
+      RF.SetValue(AControl, RV);
+    end;
+  finally
+    RTX.Free;
+  end;
+end;
+
+class function TUIEvent.RequireMethod(const AEventName: string): Pointer;
+var
+  RTX: TRttiContext;
+  RT: TRttiType;
+  RM: TRttiMethod;
+begin
+  RTX:= TRttiContext.Create;
+  try
+    RT:= RTX.GetType(TUIEvent);
+    RM:= RT.GetMethod(AEventName);
+    if Assigned(RM) and (RM.Visibility = TMemberVisibility.mvPublished) then
+      Result:= RM.CodeAddress
+    else
+      Exit(nil);
+  finally
+    RTX.Free;
+  end;
+end;
 
 class procedure TUIEvent.ImageButtonMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Single);

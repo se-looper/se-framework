@@ -47,7 +47,11 @@ type
     /// <summary>
     ///   注册一个窗口实例到WindowFactory
     /// </summary>
-    function RegWindow(const AName: string; AWindow: TWindow): Boolean;
+    function RegWindow(const AName: string; AWindow: TWindow): Boolean; overload;
+    /// <summary>
+    ///   注册一个窗口实例到WindowFactory(通过窗口配置文件)
+    /// </summary>
+    function RegWindow(const AFileName: string): Boolean; overload;
     /// <summary>
     ///   所在窗口,一般传入主窗口Application.MainForm
     /// </summary>
@@ -112,6 +116,14 @@ begin
   AWindow.Parent:= FOwnerForm;
   AWindow.OnControlClick:= DoControlClick;
   Result:= FWindowFactory.RegWindow(AName, AWindow);
+end;
+
+function TUIPackage.RegWindow(const AFileName: string): Boolean;
+var
+  LWindow: TWindow;
+begin
+  LWindow:= TWindow.Create(nil, AFileName);
+  Result:= Self.RegWindow(LWindow.Name, LWindow);
 end;
 
 procedure TUIPackage.SetOwnerForm(const Value: TForm);

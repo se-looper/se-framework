@@ -1,0 +1,54 @@
+object frmLogin: TRectangle
+  Align = Center
+  Fill.Bitmap.WrapMode = Tile
+  Fill.Kind = Bitmap
+  Position.X = 320.000000000000000000
+  Position.Y = 94.000000000000000000
+  Size.Width = 300.000000000000000000
+  Size.Height = 244.000000000000000000
+  Size.PlatformDefault = False
+  object imgTitle: TImage
+    MultiResBitmap = <
+      item
+      end>
+    Align = Top
+    Margins.Left = 25.000000000000000000
+    Margins.Top = 40.000000000000000000
+    Margins.Right = 25.000000000000000000
+    Position.X = 25.000000000000000000
+    Position.Y = 40.000000000000000000
+    Size.Width = 250.000000000000000000
+    Size.Height = 41.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object edtUserName: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    Align = VertCenter
+    TabOrder = 1
+    TextSettings.Font.Size = 14.000000000000000000
+    TextSettings.FontColor = claGreen
+    Position.X = 30.000000000000000000
+    Position.Y = 114.000000000000000000
+    Margins.Left = 30.000000000000000000
+    Margins.Right = 30.000000000000000000
+    Size.Width = 240.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    StyledSettings = []
+  end
+  object btnLogin: TImage
+    MultiResBitmap = <
+      item
+      end>
+    Align = Bottom
+    Margins.Left = 76.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 76.000000000000000000
+    Margins.Bottom = 15.000000000000000000
+    Position.X = 76.000000000000000000
+    Position.Y = 179.000000000000000000
+    Size.Width = 148.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+  end
+end

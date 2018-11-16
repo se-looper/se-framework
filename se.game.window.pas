@@ -17,17 +17,38 @@ uses
   System.Classes, System.SysUtils, System.Generics.Collections,
   System.UITypes, System.UIConsts, System.Generics.Defaults,
   FMX.Types, FMX.Objects, FMX.Ani, FMX.Controls, FMX.Graphics, FMX.Forms,
-  se.game.window.style;
+  XSuperObject,
+  se.common.helper, se.game.assetsmanager, se.game.window.style;
 
 type
-  TWindow = class(TRectangle)
+  TWindow = class
   private
+    FName: string;
+    FParent: TFmxObject;
     FOnControlClick: TNotifyEvent;
+    /// <summary>
+    ///   注册指定控件的点击事件(由脚本接管)
+    /// </summary>
     procedure RegisterClickEvent(const AControl: string; const AMsgcode: Integer);
+    /// <summary>
+    ///   通过lyt文件生成界面(生成控件和布局, 这个lyt相当于delphi的fmx或dfm)
+    /// </summary>
+    procedure MakeLayout(const AFile: string);
+    /// <summary>
+    ///   通过lytx文件填充界面(界面的Image属性及事件等)
+    /// </summary>
+    procedure MakeFill(const AFile: string);
+    /// <summary>
+    ///   设置父类
+    /// </summary>
+    procedure SetParent(const Value: TFmxObject);
   protected
-    FControlMap: TObjectDictionary<string, TControl>;
+    /// <summary>
+    ///   窗口容器(所有控件都在这个容器中)
+    /// </summary>
+    FContainer: TRectangle;
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent; const ALayoutFile: string = '');
     destructor Destroy; override;
 
     /// <summary>
@@ -43,7 +64,15 @@ type
     /// </summary>
     procedure HideMe; virtual;
     /// <summary>
-    ///   窗口中的控件点击事件
+    ///   窗口名称
+    /// </summary>
+    property Name: string read FName write FName;
+    /// <summary>
+    ///   窗口父级控件
+    /// </summary>
+    property Parent: TFmxObject read FParent write SetParent;
+    /// <summary>
+    ///   窗口中控件的点击事件
     /// </summary>
     property OnControlClick: TNotifyEvent read FOnControlClick write FOnControlClick;
   end;
@@ -97,54 +126,128 @@ type
 
 implementation
 
+uses FMX.Edit;
+
 { TWindow }
 
-constructor TWindow.Create(AOwner: TComponent);
+constructor TWindow.Create(AOwner: TComponent; const ALayoutFile: string);
 begin
-  inherited Create(AOwner);
-  FControlMap:= TObjectDictionary<string, TControl>.Create([doOwnsValues]);
-  Self.Opacity:= 0;
-  Self.Width:= 320;
-  Self.Height:= 240;
-  Self.Align:= TAlignLayout.Center;
-  Self.Fill.Kind:= TBrushKind.Bitmap;
-  Self.Stroke.Kind:= TBrushKind.None;
+  inherited Create;
+  if FileExists(ALayoutFile) then
+    MakeLayout(ALayoutFile)
+  else
+  begin
+    FContainer:= TRectangle.Create(AOwner);
+    FContainer.Opacity:= 0;
+    FContainer.Width:= 320;
+    FContainer.Height:= 240;
+    FContainer.Align:= TAlignLayout.Center;
+    FContainer.Fill.Kind:= TBrushKind.Bitmap;
+    FContainer.Stroke.Kind:= TBrushKind.None;
+  end;
+end;
+
+procedure TWindow.MakeLayout(const AFile: string);
+var
+  LStrStream, LMemStream: TMemoryStream;
+begin
+  LStrStream:= TStringStream.Create;
+  LMemStream:= TMemoryStream.Create;
+  try
+    LStrStream.LoadFromFile(AFile);
+    ObjectTextToBinary(LStrStream, LMemStream);
+    LMemStream.Position:= 0;
+    FContainer:= TRectangle(LMemStream.ReadComponent(nil));
+    FContainer.Opacity:= 0;
+    FContainer.Stroke.Kind:= TBrushKind.None;
+    FName:= FContainer.Name;
+    if FileExists(AFile + 'x') then
+      MakeFill(AFile + 'x');
+  finally
+    FreeAndNil(LStrStream);
+    FreeAndNil(LMemStream);
+  end;
+end;
+
+procedure TWindow.MakeFill(const AFile: string);
+var
+  ja: ISuperArray;
+  I: Integer;
+  LName: string;
+  LComponent: TComponent;
+begin
+  ja:= TSuperArray.ParseFile(AFile);
+  try
+    for I:= 0 to ja.Length -1 do
+    begin
+      LName:= ja.O[I].S['name'];
+      if LName = FContainer.Name then
+      begin
+        if ja.O[I].Contains('image') then
+          FContainer.Fill.Bitmap.Bitmap.LoadFromFile(AssetsManager.RequireFile(ja.O[I].S['image']));
+      end else
+      begin
+        LComponent:= FContainer.FindComponent(LName);
+        if not Assigned(LComponent) then Continue;
+        if LComponent is TImage then
+        begin
+          if ja.O[I].Contains('image') then
+            TImage(LComponent).Bitmap.LoadFromFile(AssetsManager.RequireFile(ja.O[I].S['image']));
+          if ja.O[I].Contains('mousedown') then
+            TUIEvent.SetEvent(TImage(LComponent), 'FOnMouseDown', ja.O[I].S['mousedown']);
+          if ja.O[I].Contains('mouseup') then
+            TUIEvent.SetEvent(TImage(LComponent), 'FOnMouseUp', ja.O[I].S['mouseup']);
+          if ja.O[I].Contains('mouseleave') then
+            TUIEvent.SetEvent(TImage(LComponent), 'FOnMouseLeave', ja.O[I].S['mouseleave']);
+        end;
+      end;
+    end;
+  finally
+    ja:= nil;
+  end;
 end;
 
 destructor TWindow.Destroy;
 begin
-  FreeAndNil(FControlMap);
+  FreeAndNil(FContainer);
   inherited;
 end;
 
 procedure TWindow.RegisterClickEvent(const AControl: string;
   const AMsgcode: Integer);
 var
-  LControl: TControl;
+  LComponent: TComponent;
 begin
-  if FControlMap.TryGetValue(AControl, LControl) then
+  LComponent:= FContainer.FindComponent(AControl);
+  if Assigned(LComponent) and (LComponent is TControl) then
   begin
-    LControl.OnClick:= FOnControlClick;
-    LControl.Tag:= AMsgcode;
+    TControl(LComponent).OnClick:= FOnControlClick;
+    LComponent.Tag:= AMsgcode;
   end;
 end;
 
 procedure TWindow.Resize(const AScale: Single);
 begin
-  Self.Scale.X:= AScale;
-  Self.Scale.Y:= AScale;
+  FContainer.Scale.X:= AScale;
+  FContainer.Scale.Y:= AScale;
+end;
+
+procedure TWindow.SetParent(const Value: TFmxObject);
+begin
+  FParent:= Value;
+  FContainer.Parent:= FParent;
 end;
 
 procedure TWindow.ShowMe;
 begin
-  Self.Visible:= True;
-  Self.BringToFront;
-  TAnimator.AnimateFloat(Self, 'Opacity', 1.0, 1.0);
+  FContainer.Visible:= True;
+  FContainer.BringToFront;
+  TAnimator.AnimateFloat(FContainer, 'Opacity', 1.0, 1.0);
 end;
 
 procedure TWindow.HideMe;
 begin
-  Self.Visible:= False;
+  FContainer.Visible:= False;
 end;
 
 { TWindowFactory }
@@ -194,7 +297,8 @@ begin
   if not Assigned(AWindow) then
     Exit(False);
   //
-  AWindow.Visible:= False;
+  AWindow.Name:= AName;
+  AWindow.HideMe;
   FWindowMap.AddOrSetValue(AName, AWindow);
   Result:= True;
 end;

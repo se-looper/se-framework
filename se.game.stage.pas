@@ -9,7 +9,7 @@
 {                                                                              }
 {******************************************************************************}
 
-unit se.game.main;
+unit se.game.stage;
 
 interface
 
@@ -21,7 +21,7 @@ uses
   se.game.sprite;
 
 type
-  TGameMain = class
+  TGameStage = class
   private
     FForm: TForm;
     FBridge: TFMBridge;
@@ -39,9 +39,9 @@ type
     function GetFullDeviceTechString: string;
     function GetFrameRate: Integer;
   private
-    /// <summary>
+    /// <remark>
     ///   资源管理
-    /// </summary>
+    /// </remark>
     FAssetsRoot: string;
     FAssetsMode: TAssetsModes;
     FAssetsType: TAssetsTypes;
@@ -49,23 +49,23 @@ type
     procedure SetAssetsMode(const Value: TAssetsModes);
     procedure SetAssetsRoot(const Value: string);
   private
-    /// <summary>
+    /// <remark>
     ///   脚本系统(LUA)
-    /// </summary>
+    /// </remark>
     FScriptSystem: TScriptSystem;
     FScriptRoot: string;
     procedure SetScriptRoot(const Value: string);
     procedure DoScriptPrint(AMsg: string);
     procedure DoScriptError(AMsg: string);
   private
-    /// <summary>
+    /// <remark>
     ///   精灵管理器
-    /// </summary>
+    /// </remark>
     FSpriteManager: TSpriteManager;
   private
-    /// <summary>
+    /// <remark>
     ///   日志
-    /// </summary>
+    /// </remark>
     FLogs: TStrings;
     function GetLogs: TArray<string>;
   public
@@ -151,9 +151,9 @@ type
 
 implementation
 
-{ TGameMain }
+{ TGameStage }
 
-constructor TGameMain.Create(const AForm: TForm);
+constructor TGameStage.Create(const AForm: TForm);
 begin
   inherited Create;
   FLogs:= TStringList.Create;
@@ -205,7 +205,7 @@ begin
   AssetsManager.Canvas:= FCanvas;
 end;
 
-destructor TGameMain.Destroy;
+destructor TGameStage.Destroy;
 begin
   FreeAndNil(FMultiTimer);
   FreeAndNil(FScriptSystem);
@@ -218,7 +218,7 @@ begin
   inherited;
 end;
 
-procedure TGameMain.EngineProcess(const Sender: TObject);
+procedure TGameStage.EngineProcess(const Sender: TObject);
 begin
   Inc(FTicks);
   FSpriteManager.Move(1);
@@ -226,7 +226,7 @@ begin
   if Assigned(FOnUpdate) then FOnUpdate(Sender);
 end;
 
-procedure TGameMain.EngineTiming(const Sender: TObject);
+procedure TGameStage.EngineTiming(const Sender: TObject);
 begin
   if FCanvas.BeginScene then
   try
@@ -238,19 +238,19 @@ begin
   end;
 end;
 
-procedure TGameMain.RenderScene;
+procedure TGameStage.RenderScene;
 begin
   FSpriteManager.Render;
   if Assigned(FOnRender) then FOnRender(nil);
   FCanvas.Flush;
 end;
 
-procedure TGameMain.NotifyTick;
+procedure TGameStage.NotifyTick;
 begin
   FMultiTimer.NotifyTick;
 end;
 
-procedure TGameMain.Resize;
+procedure TGameStage.Resize;
 begin
   TClientUtils.SetMainForm(FForm);
 {$IFDEF MSWINDOWS}
@@ -263,22 +263,22 @@ begin
   FSpriteManager.Resize(FDisplaySize.X, FDisplaySize.Y);
 end;
 
-function TGameMain.GetScreenScale: Single;
+function TGameStage.GetScreenScale: Single;
 begin
   Result:= TClientUtils.ScreenScale;
 end;
 
-function TGameMain.GetFullDeviceTechString: string;
+function TGameStage.GetFullDeviceTechString: string;
 begin
   Result:= PXL.Devices.GetFullDeviceTechString(FDevice);
 end;
 
-function TGameMain.GetFrameRate: Integer;
+function TGameStage.GetFrameRate: Integer;
 begin
   Result:= FMultiTimer.FrameRate;
 end;
 
-procedure TGameMain.SetAssetsMode(const Value: TAssetsModes);
+procedure TGameStage.SetAssetsMode(const Value: TAssetsModes);
 begin
   if FAssetsMode <> Value then
   begin
@@ -288,7 +288,7 @@ begin
   end;
 end;
 
-procedure TGameMain.SetAssetsType(const Value: TAssetsTypes);
+procedure TGameStage.SetAssetsType(const Value: TAssetsTypes);
 begin
   if FAssetsType <> Value then
   begin
@@ -298,7 +298,7 @@ begin
   end;
 end;
 
-procedure TGameMain.SetAssetsRoot(const Value: string);
+procedure TGameStage.SetAssetsRoot(const Value: string);
 begin
   if FAssetsRoot <> Value then
   begin
@@ -307,7 +307,7 @@ begin
   end;
 end;
 
-procedure TGameMain.SetScriptRoot(const Value: string);
+procedure TGameStage.SetScriptRoot(const Value: string);
 begin
   if FScriptRoot <> Value then
   begin
@@ -316,28 +316,28 @@ begin
   end;
 end;
 
-function TGameMain.GetLogs: TArray<string>;
+function TGameStage.GetLogs: TArray<string>;
 begin
   Result:= FLogs.ToStringArray;
 end;
 
-procedure TGameMain.DoScriptError(AMsg: string);
+procedure TGameStage.DoScriptError(AMsg: string);
 begin
   FLogs.Add('[ERROR] ' + AMsg);
 end;
 
-procedure TGameMain.DoScriptPrint(AMsg: string);
+procedure TGameStage.DoScriptPrint(AMsg: string);
 begin
   FLogs.Add('[INFO] ' + AMsg);
 end;
 
-function TGameMain.RegScriptPackage(const AClass: TScriptPackageClass;
+function TGameStage.RegScriptPackage(const AClass: TScriptPackageClass;
   const AName: string): TScriptPackage;
 begin
   Result:= FScriptSystem.RegPackage(AClass, AName);
 end;
 
-procedure TGameMain.DriveWithScript(const ALuaFile, AInitRunEnvironmentMethodName,
+procedure TGameStage.DriveWithScript(const ALuaFile, AInitRunEnvironmentMethodName,
   AStartMethodName: string);
 begin
   FScriptSystem.Run(ALuaFile, AInitRunEnvironmentMethodName, AStartMethodName);

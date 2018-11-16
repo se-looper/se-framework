@@ -14,7 +14,8 @@ unit se.utils.client;
 interface
 
 uses
-  System.UITypes, System.SysUtils, System.Types, FMX.Types, FMX.Forms;
+  System.UITypes, System.SysUtils, System.Types, System.Classes,
+  FMX.Types, FMX.Forms;
 
 type
   TClientUtils = class
@@ -47,6 +48,10 @@ type
   public
     class function Cos256(const AIndex: Integer): Double;
     class function Sin256(const AIndex: Integer): Double;
+  public
+    //组件持久化相关
+    class function ComponentToStr(const AComponent: TComponent): string;
+    class function StrToComponent(const AString: string): TComponent;
   end;
 
 implementation
@@ -164,6 +169,48 @@ end;
 class function TClientUtils.Sin256(const AIndex: Integer): Double;
 begin
   Result:= FCosTable256[(AIndex+192) and 255];
+end;
+
+class function TClientUtils.ComponentToStr(const AComponent: TComponent): string;
+var
+  LMemStream: TMemoryStream;
+  LStrStream: TStringStream;
+begin
+  LMemStream:= TMemoryStream.Create;
+  try
+    LStrStream:= TStringStream.Create;
+    try
+      LMemStream.WriteComponent(AComponent);
+      LMemStream.Seek(0, soFromBeginning);
+      System.Classes.ObjectBinaryToText(LMemStream, LStrStream);
+      LStrStream.Seek(0, soFromBeginning);
+      Result:= LStrStream.DataString;
+    finally
+      FreeAndNil(LStrStream);
+    end;
+  finally
+    FreeAndNil(LMemStream);
+  end;
+end;
+
+class function TClientUtils.StrToComponent(const AString: string): TComponent;
+var
+  LStrStream: TStringStream;
+  LMemStream: TMemoryStream;
+begin
+  LStrStream := TStringStream.Create(AString);
+  try
+    LMemStream := TMemoryStream.Create;
+    try
+      System.Classes.ObjectTextToBinary(LStrStream,LMemStream);
+      LMemStream.Seek(0,soFromBeginning);
+      Result := LMemStream.ReadComponent(nil);
+    finally
+      FreeAndNil(LMemStream);
+    end;
+  finally
+    FreeAndNil(LStrStream);
+  end;
 end;
 
 end.

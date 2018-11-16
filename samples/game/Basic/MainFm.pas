@@ -24,17 +24,12 @@ uses
   { PXL}
   PXL.Types, PXL.Fonts,
   { SE Framework }
-  se.utils.client, se.game.helper, se.game.main, se.game.assetsmanager,
+  se.utils.client, se.game.helper, se.game.stage, se.game.assetsmanager,
   se.game.sprite,
   se.game.script.package, se.game.script.package.ui, se.game.script.package.sound,
   se.game.window, se.game.window.style;
 
 type
-  TLoginWindow = class(TWindow)
-  public
-    constructor Create(AOwner: TComponent);
-  end;
-
   TRankWindow = class(TWindow)
   private
     FRankItems: TList<TViewListItem>;
@@ -56,7 +51,7 @@ type
     procedure FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure SysTimerTimer(Sender: TObject);
   private
-    FGameMain: TGameMain;
+    FGameStage: TGameStage;
     EngineFonts: TBitmapFonts;
     FontTahoma: Integer;
     FStrings: TStrings;
@@ -90,54 +85,6 @@ begin
 {$ENDIF}
 end;
 
-{ TLoginWindow }
-
-constructor TLoginWindow.Create(AOwner: TComponent);
-var
-  LTitleImage, LLoginButton: TImage;
-  LUserNameEdit: TEdit;
-begin
-  inherited Create(AOwner);
-  Self.Width:= 300;
-  Self.Height:= 244;
-  Self.Fill.Bitmap.Bitmap.LoadFromFile(AssetsManager.RequireFile('login_bg.png'));
-  //
-  LTitleImage:= TImage.Create(Self);
-  LTitleImage.Parent:= Self;
-  LTitleImage.Align:= TAlignLayout.Top;
-  LTitleImage.Margins.Left:= 25;
-  LTitleImage.Margins.Right:= 25;
-  LTitleImage.Margins.Top:= 40;
-  LTitleImage.Height:= 41;
-  LTitleImage.Bitmap.LoadFromFile(AssetsManager.RequireFile('login_title.png'));
-  FControlMap.Add('imgTitle', LTitleImage);
-  //
-  LUserNameEdit:= TEdit.Create(Self);
-  LUserNameEdit.Parent:= Self;
-  LUserNameEdit.Align:= TAlignLayout.VertCenter;
-  LUserNameEdit.Margins.Left:= 30;
-  LUserNameEdit.Margins.Right:= 30;
-  LUserNameEdit.StyledSettings:= [];
-  LUserNameEdit.TextSettings.Font.Size:= 14;
-  LUserNameEdit.TextSettings.FontColor:= TAlphaColorRec.Green;
-  LUserNameEdit.Text:= 'ddd';
-  FControlMap.Add('edtUserName', LUserNameEdit);
-  //
-  LLoginButton:= TImage.Create(Self);
-  LLoginButton.Parent:= Self;
-  LLoginButton.Align:= TAlignLayout.Bottom;
-  LLoginButton.Margins.Left:= 76;
-  LLoginButton.Margins.Right:= 76;
-  LLoginButton.Margins.Top:= 10;
-  LLoginButton.Margins.Bottom:= 15;
-  LLoginButton.Height:= 59;
-  LLoginButton.Bitmap.LoadFromFile(AssetsManager.RequireFile('login.png'));
-  LLoginButton.OnMouseDown:= TUIEvent.ImageButtonMouseDown;
-  LLoginButton.OnMouseUp:= TUIEvent.ImageButtonMouseUp;
-  LLoginButton.OnMouseLeave:= TUIEvent.ImageButtonMouseLeave;
-  FControlMap.Add('btnLogin', LLoginButton);
-end;
-
 { TRankWindow }
 
 constructor TRankWindow.Create(AOwner: TComponent);
@@ -147,26 +94,23 @@ begin
   inherited Create(AOwner);
   FRankItems:= TList<TViewListItem>.Create;
   //
-  Self.Opacity:= 0;
-  Self.Width:= 300;
-  Self.Height:= 423;
-  Self.Align:= TAlignLayout.Center;
-  Self.Fill.Kind:= TBrushKind.Bitmap;
-  Self.Fill.Bitmap.Bitmap.LoadFromFile(AssetsManager.RequireFile('rank_bg.png'));
-  Self.Stroke.Kind:= TBrushKind.None;
+  FContainer.Width:= 300;
+  FContainer.Height:= 423;
+  FContainer.Fill.Bitmap.Bitmap.LoadFromFile(AssetsManager.RequireFile('rank_bg.png'));
   //
-  LTitleImage:= TImage.Create(Self);
-  LTitleImage.Parent:= Self;
+  LTitleImage:= TImage.Create(FContainer);
+  LTitleImage.Parent:= FContainer;
+  LTitleImage.Name:= 'imgTitle';
   LTitleImage.Align:= TAlignLayout.Top;
   LTitleImage.Margins.Left:= 25;
   LTitleImage.Margins.Right:= 25;
   LTitleImage.Margins.Top:= 30;
   LTitleImage.Height:= 41;
   LTitleImage.Bitmap.LoadFromFile(AssetsManager.RequireFile('rank_title.png'));
-  FControlMap.Add('imgTitle', LTitleImage);
 
-  FRankListView:= TPresentedScrollBox.Create(Self);
-  FRankListView.Parent:= Self;
+  FRankListView:= TPresentedScrollBox.Create(FContainer);
+  FRankListView.Parent:= FContainer;
+  FRankListView.Name:= 'lsvRank';
   FRankListView.Align:= TAlignLayout.Client;
   FRankListView.AutoHide:= TBehaviorBoolean.True;
   FRankListView.Bounces:= TBehaviorBoolean.True;
@@ -175,10 +119,10 @@ begin
   FRankListView.ShowScrollBars:= False;
   FRankListView.Size.PlatformDefault:= False;
   FRankListView.TouchTracking:= TBehaviorBoolean.True;
-  FControlMap.Add('lsvRank', FRankListView);
 
-  LCloseButton:= TImage.Create(Self);
-  LCloseButton.Parent:= Self;
+  LCloseButton:= TImage.Create(FContainer);
+  LCloseButton.Parent:= FContainer;
+  LCloseButton.Name:= 'btnClose';
   LCloseButton.Align:= TAlignLayout.Bottom;
   LCloseButton.Margins.Left:= 75;
   LCloseButton.Margins.Right:= 75;
@@ -189,7 +133,6 @@ begin
   LCloseButton.OnMouseDown:= TUIEvent.ImageButtonMouseDown;
   LCloseButton.OnMouseUp:= TUIEvent.ImageButtonMouseUp;
   LCloseButton.OnMouseLeave:= TUIEvent.ImageButtonMouseLeave;
-  FControlMap.Add('btnClose', LCloseButton);
 
   InitRankItems(20);
 end;
@@ -225,7 +168,7 @@ end;
 
 function TRankWindow.AddRankItem: TViewListItem;
 begin
-  Result:= TViewListItem.Create(Self);
+  Result:= TViewListItem.Create(FContainer);
   Result.Parent:= FRankListView;
   Result.Align:= TAlignLayout.Top;
   Result.Image:= AssetsManager.RequireFile('item_bg.png');
@@ -264,14 +207,15 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   LPackage: TScriptPackage;
+  I: Integer;
 begin
-  FGameMain:= TGameMain.Create(Self);
-  FGameMain.OnRender:= DoRender;
-  FGameMain.AssetsRoot:= GetMediaPath;
-  FGameMain.ScriptRoot:= GetMediaPath + 'script';
+  FGameStage:= TGameStage.Create(Self);
+  FGameStage.OnRender:= DoRender;
+  FGameStage.AssetsRoot:= GetMediaPath;
+  FGameStage.ScriptRoot:= GetMediaPath + 'script';
 
-  EngineFonts:= TBitmapFonts.Create(FGameMain.Canvas.Device);
-  EngineFonts.Canvas:= FGameMain.Canvas;
+  EngineFonts:= TBitmapFonts.Create(FGameStage.Canvas.Device);
+  EngineFonts.Canvas:= FGameStage.Canvas;
   FontTahoma:= EngineFonts.AddFromXMLFile(GetMediaPath + 'Tahoma9b.png');
   if FontTahoma = -1 then
   begin
@@ -283,7 +227,7 @@ begin
   FStrings:= TStringList.Create;
 
   //right & top
-  with TGUISprite.Create(FGameMain.SpriteManager) do
+  with TGUISprite.Create(FGameStage.SpriteManager) do
   begin
     Name:= 'btnShowLogin';
     Image:= AssetsManager.Require('head01.png');
@@ -294,7 +238,7 @@ begin
   end;
 
   //bottom & center
-  with TGUISprite.Create(FGameMain.SpriteManager) do
+  with TGUISprite.Create(FGameStage.SpriteManager) do
   begin
     Name:= 'btnShowRank';
     Image:= AssetsManager.Require('rank_btn.png');
@@ -305,33 +249,33 @@ begin
   end;
 
   // ui package
-  LPackage:= FGameMain.RegScriptPackage(TUIPackage, 'UIPackage');
+  LPackage:= FGameStage.RegScriptPackage(TUIPackage, 'UIPackage');
   if Assigned(LPackage) then
   begin
     FUIPackage:= TUIPackage(LPackage);
     FUIPackage.OwnerForm:= Self;
-    FUIPackage.SpriteManager:= FGameMain.SpriteManager;
-    // test: make loginwindow
-    FUIPackage.RegWindow('frmLogin', TLoginWindow.Create(nil));
-    // test: make rankwindow
+    FUIPackage.SpriteManager:= FGameStage.SpriteManager;
+    // test: make loginwindow by lyt file
+    FUIPackage.RegWindow(GetMediaPath+'ui\login.lyt');
+    // test: make rankwindow by native
     FUIPackage.RegWindow('frmRank', TRankWindow.Create(nil));
   end;
   // sound package
-  LPackage:= FGameMain.RegScriptPackage(TSoundPackage, 'SoundPackage');
+  LPackage:= FGameStage.RegScriptPackage(TSoundPackage, 'SoundPackage');
   // drive with lua
-  FGameMain.DriveWithScript('app.lua', 'InitRunEnvironment', 'Start');
+  FGameStage.DriveWithScript('app.lua', 'InitRunEnvironment', 'Start');
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(EngineFonts);
   FreeAndNil(FStrings);
-  FreeAndNil(FGameMain);
+  FreeAndNil(FGameStage);
 end;
 
 procedure TMainForm.FormResize(Sender: TObject);
 begin
-  FGameMain.Resize;
+  FGameStage.Resize;
 end;
 
 procedure TMainForm.FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
@@ -340,7 +284,7 @@ begin
   Canvas.Flush;
 
   // Invoke PXL's multimedia timer, which will call "EngineTiming" to continue drawing on this form with PXL.
-  FGameMain.NotifyTick;
+  FGameStage.NotifyTick;
 end;
 
 procedure TMainForm.DoPrint(const AMsg: string);
@@ -354,12 +298,12 @@ var
 begin
   EngineFonts[FontTahoma].DrawText(
     Point2f(4.0, 4.0),
-    'FPS: ' + IntToStr(FGameMain.FrameRate),
+    'FPS: ' + IntToStr(FGameStage.FrameRate),
     ColorPair($FFFFE887, $FFFF0000));
 
   EngineFonts[FontTahoma].DrawText(
     Point2f(4.0, 24.0),
-    'Technology: ' + FGameMain.FullDeviceTechString,
+    'Technology: ' + FGameStage.FullDeviceTechString,
     ColorPair($FFE8FFAA, $FF12C312));
 
   for I:= 0 to FStrings.Count -1 do
@@ -368,10 +312,10 @@ begin
       FStrings[I],
       ColorPair($FFE8FFAA, $FF12C312));
 
-  for I:= 0 to Length(FGameMain.Logs) -1 do
+  for I:= 0 to Length(FGameStage.Logs) -1 do
     EngineFonts[FontTahoma].DrawText(
       Point2f(200.0, 100.0 + (I+FStrings.Count+1)*20),
-      FGameMain.Logs[I],
+      FGameStage.Logs[I],
       ColorPair($FFE8FFAA, $FF12C312));
 end;
 

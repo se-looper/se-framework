@@ -18,11 +18,13 @@ uses
   System.UITypes, System.UIConsts, System.Generics.Defaults,
   FMX.Types, FMX.Objects, FMX.Ani, FMX.Controls, FMX.Graphics, FMX.Forms,
   XSuperObject,
-  se.common.helper, se.game.assetsmanager, se.game.window.style;
+  se.common.helper, se.game.types, se.game.assetsmanager, se.game.window.style;
 
 type
+  TWindowFactory = class;
   TWindow = class
   private
+    FFactory: TWindowFactory;
     FName: string;
     FParent: TFmxObject;
     FOnControlClick: TNotifyEvent;
@@ -82,6 +84,7 @@ type
     FOwnerForm: TForm;
     FMask: TRectangle;
     FWindowMap: TObjectDictionary<string, TWindow>;
+    FOnPrint: TNotifyInfoEvent;
     procedure SetOwnerForm(const Value: TForm);
   public
     constructor Create;
@@ -99,6 +102,8 @@ type
     ///   所在窗口,一般传入主窗口Application.MainForm
     /// </summary>
     property OwnerForm: TForm read FOwnerForm write SetOwnerForm;
+    // 信息打印
+    property OnPrint: TNotifyInfoEvent read FOnPrint write FOnPrint;
   public
     /// <summary>
     ///   注册窗口中指定控件的点击事件
@@ -117,11 +122,11 @@ type
     /// <summary>
     ///   显示窗口
     /// </summary>
-    procedure ShowWindow(const AWindowName: string);
+    procedure Show(const AWindowName: string);
     /// <summary>
     ///   关闭窗口
     /// </summary>
-    procedure CloseWindow(const AWindowName: string);
+    procedure Close(const AWindowName: string);
   end;
 
 implementation
@@ -299,6 +304,7 @@ begin
   //
   AWindow.Name:= AName;
   AWindow.HideMe;
+  AWindow.FFactory:= Self;
   FWindowMap.AddOrSetValue(AName, AWindow);
   Result:= True;
 end;
@@ -312,7 +318,7 @@ begin
     LWindow.RegisterClickEvent(AControlName, AMsgcode);
 end;
 
-procedure TWindowFactory.ShowWindow(const AWindowName: string);
+procedure TWindowFactory.Show(const AWindowName: string);
 var
   LWindow: TWindow;
 begin
@@ -323,7 +329,7 @@ begin
   end;
 end;
 
-procedure TWindowFactory.CloseWindow(const AWindowName: string);
+procedure TWindowFactory.Close(const AWindowName: string);
 var
   LWindow: TWindow;
 begin

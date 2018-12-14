@@ -1,5 +1,6 @@
 fol = {
 	uipkg = require "UIPackage",
+	netpkg  = require "NetPackage",
 	soundpkg  = require "SoundPackage",
 };
 
@@ -16,6 +17,7 @@ function InitRunEnvironment(aScriptPath, aLibPath)
 	fol.netcmd     = require "common_netcommand";
 	fol.start      = require "module_start";
 	fol.login      = require "module_login";
+	fol.register   = require "module_register";
 	fol.rank       = require "module_rank";
 end
 

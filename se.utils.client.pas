@@ -14,7 +14,7 @@ unit se.utils.client;
 interface
 
 uses
-  System.UITypes, System.SysUtils, System.Types, System.Classes,
+  System.UITypes, System.SysUtils, System.Types, System.Classes, System.IOUtils,
   FMX.Types, FMX.Forms;
 
 type
@@ -121,6 +121,22 @@ class constructor TClientUtils.Create;
 var
   I: Integer;
 begin
+  FAppFile:= ParamStr(0);
+  FAppName:= ChangeFileExt(ExtractFileName(FAppFile), '');
+  FAppPath:= IncludeTrailingPathDelimiter(ExtractFilePath(FAppFile));
+
+  {$IF defined(IOS) or defined(ANDROID)}
+  FAppHome:= IncludeTrailingPathDelimiter(TPath.GetHomePath);
+  {$ELSE}
+  FAppHome:= IncludeTrailingPathDelimiter(TPath.Combine(TPath.GetHomePath, FAppName));
+  {$ENDIF}
+
+  {$IF defined(IOS) or defined(ANDROID)}
+  FAppDocuments:= IncludeTrailingPathDelimiter(TPath.GetDocumentsPath);
+  {$ELSE}
+  FAppDocuments:= IncludeTrailingPathDelimiter(TPath.Combine(TPath.GetDocumentsPath, FAppName));
+  {$ENDIF}
+
   FStatusBarHeight:= 0;
   FScreenScale:= 1.0;
   FPhysicalScreenSize.Create(0, 0);

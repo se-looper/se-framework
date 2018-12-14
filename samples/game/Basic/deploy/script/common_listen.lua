@@ -14,7 +14,7 @@ end
 function execNetMsg(msgcode, data)
 	local LTable = mCallbackTable[msgcode];
 	if LTable ~= nil then
-		local LData = json.decode(data);
+		local LData = fol.json.decode(data);
 		for k,v in pairs(LTable) do
 			v.callback(v.m_this, LData);
 		end;

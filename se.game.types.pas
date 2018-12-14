@@ -14,26 +14,73 @@ unit se.game.types;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Math,
+  System.Classes, System.SysUtils, System.Math, System.Generics.Collections,
+  System.TypInfo, XSuperObject,
   PXL.Types, PXL.Canvas, PXL.Images, PXL.Textures, PXL.Surfaces, PXL.ImageFormats,
-  PXL.Providers, PXL.Formats, PXL.Archives,
+  PXL.Providers, PXL.Formats, PXL.Archives, PXL.Lists,
   se.game.consts;
 
-type
-  TNotifyInfoEvent = procedure (const AMsg: string) of object;
+const
+  IntColorRed    = $FFFF0000;
+  IntColorOrange = $FFFF8020;
+  IntColorYellow = $FFFFFF00;
+  IntColorGreen  = $FF008000;
+  IntColorCyan   = $FF00FFFF;
+  IntColorBlue   = $FF0000FF;
+  IntColorPurple = $FF800080;
 
 type
-  //文本对齐
-  TTextAlignment = (taCenter, taLeading, taTrailing);
+  //碰撞模式
+  TCollideMode   = (cmCircle,           // 圆
+                    cmRect,             // 矩形
+                    cmQuadrangle,       // 四边形
+                    cmPolygon           // 多边形
+                   );
+  //动画播放模式
+  TAnimPlayMode  = (pmForward,          // 12345 12345 12345
+                    pmBackward,         // 54321 54321 54321
+                    pmPingPong          // 12345432123454321
+                   );
+  //渲染模式
+  TDrawMode      = (dmColor,
+                    dmRotate,
+                    dmTransform
+                   );
+
+  //对齐方式
+  TAlignMode     = (amNone,             // 0
+                    amClient,           // 1
+                    amLeftTop,          // 2
+                    amRightTop,         // 3
+                    amLeftBottom,       // 4
+                    amRightBottom,      // 5
+                    amCenter,           // 6
+                    amCenterTop,        // 7
+                    amCenterBottom,     // 8
+                    amCenterLeft,       // 9
+                    amCenterRight       // 10
+                   );
+
+  //文本对齐方式
+  TTextAlignMode = (tamLeft,
+                    tamRight,
+                    tamCenter,
+                    tamJustify
+                   );
+
+
+type
+  TNotifyInfoEvent = procedure (AMsg: string) of object;
 
 type
   TEngineCanvas = TCustomCanvas;
   TEnginePixelSurface = TPixelSurface;
-  TEngineLockedPixels = TLockedPixels;
+  TEnginePixels = TLockedPixels;
   TEngineBlendingEffect = TBlendingEffect;
   TEngineTexture = TCustomLockableTexture;
   TEngineImage = TAtlasImage;
   TEngineArchive = TArchive;
+  TEngineIntRectList = TIntRectList;
 
 type
   TPolygon = record
@@ -49,6 +96,69 @@ type
     function Formatting: string;
     class function Empty: TTextureChunk; static;
     class function Make(const AImage: TEngineImage): TTextureChunk; static;
+  end;
+
+  TSceneData = class
+  private type
+    TFontProp = record
+      Size: Word;
+      Color: TIntColor;
+    public
+      procedure SetColor(const AColor: string);
+    end;
+
+    TTextProp = record
+      Name: string;
+      Text: string;
+      Font: TFontProp;
+      TextAlign: TTextAlignMode;
+    public
+      procedure SetTextAlign(const ATextAlign: string);
+      function IsNull: Boolean;
+    end;
+  public type
+    TLayoutItem = class
+    private
+      FName, FImageName: string;
+      FWidth, FHeight: Integer;
+      FAlign: TAlignMode;
+      FHitTest: Boolean;
+      FZOrder: Integer;
+      FText: TTextProp;
+      FMargins: TIntRect;
+      FChilds: TObjectList<TLayoutItem>;
+    public
+      constructor Create;
+      destructor Destroy; override;
+
+      procedure SetAlign(const AAlign: string);
+
+      property Name: string read FName;
+      property Width: Integer read FWidth;
+      property Height: Integer read FHeight;
+      property ImageName: string read FImageName;
+      property Align: TAlignMode read FAlign;
+      property HitTest: Boolean read FHitTest;
+      property ZOrder: Integer read FZOrder;
+      property Margins: TIntRect read FMargins;
+      property Text: TTextProp read FText;
+      property Childs: TObjectList<TLayoutItem> read FChilds;
+    end;
+  private
+    FName, FMapFile: string;
+    FLayoutItems: TObjectList<TLayoutItem>;
+    function GetCount: Integer;
+    function GetItem(const Index: Integer): TLayoutItem;
+    function Parse(const AFile: string): string; overload;
+    procedure Parse(const AData: ISuperObject;
+      const AItems: TObjectList<TLayoutItem>); overload;
+  public
+    constructor Create(const AFile: string);
+    destructor Destroy; override;
+
+    property Name: string read FName;
+    property Items[const Index: Integer]: TLayoutItem read GetItem;
+    property Count: Integer read GetCount;
   end;
 
 implementation
@@ -198,6 +308,136 @@ begin
     Result.Rect:= ZeroIntRect
   else
     Result.Rect:= IntRect(0, 0, AImage.Texture[0].Width, AImage.Texture[0].Height);
+end;
+
+{ TSceneData.TFontProp }
+
+procedure TSceneData.TFontProp.SetColor(const AColor: string);
+const
+  cZeroV = '00000000';
+var
+  LHexColor: string;
+begin
+  LHexColor:= AColor.Replace('#','').Replace('$','');
+  LHexColor:= '$' + Copy(cZeroV, 1, 8-Length(LHexColor)) + LHexColor;
+  Self.Color:= StrToIntDef(LHexColor, 0);
+end;
+
+{ TSceneData.TTextProp }
+
+function TSceneData.TTextProp.IsNull: Boolean;
+begin
+  Result:= Self.Name.IsEmpty or Self.Text.IsEmpty;
+end;
+
+procedure TSceneData.TTextProp.SetTextAlign(const ATextAlign: string);
+begin
+  Self.TextAlign:= TTextAlignMode(GetEnumValue(TypeInfo(TTextAlignMode), ATextAlign));
+end;
+
+{ TSceneData.TLayoutItem }
+
+constructor TSceneData.TLayoutItem.Create;
+begin
+  inherited;
+  FChilds:= TObjectList<TLayoutItem>.Create;
+end;
+
+destructor TSceneData.TLayoutItem.Destroy;
+begin
+  FreeAndNil(FChilds);
+  inherited;
+end;
+
+procedure TSceneData.TLayoutItem.SetAlign(const AAlign: string);
+begin
+  FAlign:= TAlignMode(GetEnumValue(TypeInfo(TAlignMode), AAlign));
+end;
+
+{ TSceneData }
+
+constructor TSceneData.Create(const AFile: string);
+var
+  jo: ISuperObject;
+  I: Integer;
+begin
+  inherited Create;
+  FLayoutItems:= TObjectList<TLayoutItem>.Create;
+  if not FileExists(AFile) then
+    Exit;
+  jo:= SO(Self.Parse(AFile));
+  try
+    FName:= ExtractFileName(AFile).Replace('.scene', '');
+    FMapFile:= jo.S['map'];
+    for I:= 0 to jo.A['gui'].Length -1 do
+      Self.Parse(jo.A['gui'].O[I], FLayoutItems);
+  finally
+    jo:= nil;
+  end;
+end;
+
+destructor TSceneData.Destroy;
+begin
+  FreeAndNil(FLayoutItems);
+  inherited;
+end;
+
+function TSceneData.GetCount: Integer;
+begin
+  Result:= FLayoutItems.Count;
+end;
+
+function TSceneData.GetItem(const Index: Integer): TLayoutItem;
+begin
+  if Index < FLayoutItems.Count then
+    Result:= FLayoutItems[Index]
+  else
+    Result:= nil;
+end;
+
+function TSceneData.Parse(const AFile: string): string;
+var
+  LStrings: TStrings;
+begin
+  LStrings:= TStringList.Create;
+  try
+    LStrings.LoadFromFile(AFile, TEncoding.ANSI);
+    Result:= LStrings.Text;
+  finally
+    FreeAndNil(LStrings);
+  end;
+end;
+
+procedure TSceneData.Parse(const AData: ISuperObject;
+  const AItems: TObjectList<TLayoutItem>);
+var
+  I: Integer;
+  LItem: TLayoutItem;
+begin
+  LItem:= TLayoutItem.Create;
+  LItem.FName:= AData.S['name'];
+  LItem.FWidth:= AData.I['width'];
+  LItem.FHeight:= AData.I['height'];
+  LItem.FImageName:= AData.S['image'];
+  LItem.SetAlign(AData.S['align']);
+  LItem.FHitTest:= AData.B['hittest'];
+  LItem.FZOrder:= AData.I['zorder'];
+  LItem.FMargins.Left  := AData.O['margins'].I['left'];
+  LItem.FMargins.Top   := AData.O['margins'].I['top'];
+  LItem.FMargins.Right := AData.O['margins'].I['right'];
+  LItem.FMargins.Bottom:= AData.O['margins'].I['bottom'];
+  if AData.Contains('text') then
+  begin
+    LItem.FText.Name:= AData.O['text'].S['name'];
+    LItem.FText.Text:= AData.O['text'].S['text'];
+    LItem.FText.Font.Size := AData.O['text'].O['font'].I['size'];
+    LItem.FText.Font.SetColor(AData.O['text'].O['font'].S['color']);
+    LItem.FText.SetTextAlign(AData.O['text'].S['textalign']);
+  end;
+  AItems.Add(LItem);
+  //
+  for I:= 0 to AData.A['childs'].Length -1 do
+    Parse(AData.A['childs'].O[I], LItem.Childs);
 end;
 
 end.

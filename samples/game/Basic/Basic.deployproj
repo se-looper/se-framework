@@ -4,7 +4,7 @@
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <PropertyGroup>
-        <DeviceId Condition="'$(Platform)'=='Android'">emulator-5554</DeviceId>
+        <DeviceId Condition="'$(Platform)'=='Android'">9MPBB18711150712</DeviceId>
         <DeviceId Condition="'$(Platform)'=='iOSDevice32'"/>
         <DeviceId Condition="'$(Platform)'=='iOSDevice64'"/>
         <DeviceId Condition="'$(Platform)'=='iOSSimulator'">iPhone5</DeviceId>
@@ -139,20 +139,29 @@
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Android'">
+        <DeployFile Include="deploy\data\image\item_bg2.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>item_bg2.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\config\ui\register.lytx" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\ui\</RemoteDir>
+            <RemoteName>register.lytx</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\res\drawable-small\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage426</DeployClass>
             <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="deploy\login_title.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>login_title.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -166,20 +175,29 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\data\image\register_title.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>register_title.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\config\scene\main.scene" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\scene\</RemoteDir>
+            <RemoteName>main.scene</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="Android\Debug\splash_image_def.xml" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\res\drawable\</RemoteDir>
             <RemoteName>splash_image_def.xml</RemoteName>
             <DeployClass>AndroidSplashImageDef</DeployClass>
             <Operation>1</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="deploy\rank_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_bg.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -198,6 +216,33 @@
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage470</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\android\lib\armeabi\libbass.so" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\library\lib\armeabi\</RemoteDir>
+            <RemoteName>libbass.so</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\rank_btn.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>rank_btn.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\config\ui\login.lyt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\ui\</RemoteDir>
+            <RemoteName>login.lyt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -238,9 +283,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\rank_title.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_title.png</RemoteName>
+        <DeployFile Include="deploy\data\image\rolenamebg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>rolenamebg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -292,9 +337,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\login_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>login_bg.png</RemoteName>
+        <DeployFile Include="deploy\data\image\head01.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>head01.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -328,18 +373,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\Tahoma9b.xml" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>Tahoma9b.xml</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="deploy\rank_btn.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>rank_btn.png</RemoteName>
+        <DeployFile Include="deploy\data\image\rank_title.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>rank_title.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -373,9 +409,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\login.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>login.png</RemoteName>
+        <DeployFile Include="deploy\data\image\login_title.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>login_title.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -391,9 +427,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\Tahoma9b.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>Tahoma9b.png</RemoteName>
+        <DeployFile Include="deploy\data\image\item_bg1.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>item_bg1.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -436,15 +472,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\sys_miss.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>sys_miss.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="deploy\android\lib\armeabi-v7a\liblua.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>liblua.so</RemoteName>
@@ -472,15 +499,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\item_bg.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>item_bg.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="deploy\script\common_msgcode.lua" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\script\</RemoteDir>
             <RemoteName>common_msgcode.lua</RemoteName>
@@ -490,9 +508,45 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\item_bg3.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>item_bg3.png</RemoteName>
+        <DeployFile Include="deploy\data\image\rank_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>rank_bg.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\sys_miss.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>sys_miss.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\font\droid.ttf" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\font\</RemoteDir>
+            <RemoteName>droid.ttf</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\config\ui\register.lyt" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\ui\</RemoteDir>
+            <RemoteName>register.lyt</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\background.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>background.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -535,15 +589,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\item_bg4n.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>item_bg4n.png</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="$(BDS)\lib\android\debug\mips\libnative-activity.so" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\library\lib\mips\</RemoteDir>
             <RemoteName>libBasic.so</RemoteName>
@@ -553,9 +598,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\head01.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>head01.png</RemoteName>
+        <DeployFile Include="deploy\data\image\item_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>item_bg.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -589,6 +634,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\data\image\login.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>login.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\res\drawable-xlarge\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
@@ -598,9 +652,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\item_bg2.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>item_bg2.png</RemoteName>
+        <DeployFile Include="deploy\data\config\ui\login.lytx" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\ui\</RemoteDir>
+            <RemoteName>login.lytx</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -654,11 +708,29 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\data\image\bg3.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>bg3.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="$(NDKBasePath)\prebuilt\android-arm\gdbserver\gdbserver" Condition="'$(Config)'=='Debug'">
             <RemoteDir>Basic\library\lib\armeabi-v7a\</RemoteDir>
             <RemoteName>gdbserver</RemoteName>
             <DeployClass>AndroidGDBServer</DeployClass>
             <Operation>1</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\item_bg4n.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>item_bg4n.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
@@ -672,9 +744,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\rank_close.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
+        <DeployFile Include="deploy\data\image\rank_close.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
             <RemoteName>rank_close.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\start.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>start.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -699,9 +780,9 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="deploy\item_bg1.png" Condition="'$(Config)'=='Release'">
-            <RemoteDir>Basic\assets\internal\</RemoteDir>
-            <RemoteName>item_bg1.png</RemoteName>
+        <DeployFile Include="deploy\data\config\scene\start.scene" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\config\scene\</RemoteDir>
+            <RemoteName>start.scene</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -717,9 +798,27 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
+        <DeployFile Include="deploy\data\image\login_bg.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>login_bg.png</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="deploy\script\lib_json.lua" Condition="'$(Config)'=='Release'">
             <RemoteDir>Basic\assets\internal\script\</RemoteDir>
             <RemoteName>lib_json.lua</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
+        <DeployFile Include="deploy\data\image\item_bg3.png" Condition="'$(Config)'=='Release'">
+            <RemoteDir>Basic\assets\internal\data\image\</RemoteDir>
+            <RemoteName>item_bg3.png</RemoteName>
             <DeployClass>File</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>

@@ -28,6 +28,7 @@ type
   TEngineImageHelper = class helper for TAtlasImage
   private
     function GetDefaultTexture: TEngineTexture;
+    function GetLastTexture: TEngineTexture;
     function GetPatternRect(const Index: Integer): TIntRect;
     function GetHeight: Integer;
     function GetWidth: Integer;
@@ -46,9 +47,17 @@ type
     function LoadFromHexString(const AHexData: string;
       const AExtension: string = '.png'): Boolean;
     /// <summary>
+    ///   保存到文件
+    /// </summary>
+    procedure SaveToFile(const AFile: string; const ATextureIndex: Integer = 0);
+    /// <summary>
     ///   Return Texture[0]
     /// </summary>
     property DefaultTexture: TEngineTexture read GetDefaultTexture;
+    /// <summary>
+    ///   Return Texture[TextureCount-1]
+    /// </summary>
+    property LastTexture: TEngineTexture read GetLastTexture;
     /// <summary>
     ///   Return a pattern rect
     /// </summary>
@@ -64,33 +73,23 @@ type
   end;
 
   TEngineCanvasHelper = class helper for TEngineCanvas
-    procedure DrawImage(const AImage: TEngineImage; const AQuad: TQuad); overload;
-    procedure DrawImagePx(const AImage: TEngineImage;
-      const ASourceQuad, ATargetQuad: TQuad; const AColor: TColorRect;
-      const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal);
-
-    procedure DrawImageRegion(const AImage: TEngineImage;
-      const ARegionIndex: Integer;
-      const ATargetQuad: TQuad;
-      const AColor: TIntColor;
-      const AMirror, AFlip: Boolean;
-      const AAngle: Single;
-      const AScale: TPoint2f;
-      const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
-    procedure DrawImageRegion(const AImage: TEngineImage;
-      const ARegionIndex: Integer;
-      const APosX, APosY: Single;
-      const AColor: TIntColor;
-      const AMirror, AFlip: Boolean;
-      const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
-    procedure DrawImageRegion(const AImage: TEngineImage;
-      const ARegionIndex: Integer;
-      const APosX, APosY: Single;
-      const AColor: TIntColor;
-      const AMirror, AFlip: Boolean;
-      const AAngle: Single;
-      const AScale: TPoint2f;
-      const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
+    procedure DrawImage(const AImage: TEngineImage;
+                        const ATargetQuad: TQuad;
+                        const AColor: TIntColor = IntColorWhite;
+                        const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
+    procedure DrawImage(const AImage: TEngineImage;
+                        const ASourceQuad, ATargetQuad: TQuad;
+                        const AColor: TIntColor = IntColorWhite;
+                        const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
+    procedure DrawImage(const AImage: TEngineImage;
+                        const ARegionIndex: Integer;
+                        const ATargetQuad: TQuad;
+                        const AColor: TIntColor = IntColorWhite;
+                        const AMirror: Boolean = False;
+                        const AFlip: Boolean = False;
+                        const AAngle: Single = 0.0;
+                        const AScale: Single = 1.0;
+                        const ABlendingEffect: TBlendingEffect = TBlendingEffect.Normal); overload;
   end;
 
   TArchiveHelper = class helper for TArchive
@@ -188,6 +187,22 @@ begin
   Result:= IntRect(0, 0, Self.DefaultTexture.Width, Self.DefaultTexture.Height);
 end;
 
+procedure TEngineImageHelper.SaveToFile(const AFile: string;
+  const ATextureIndex: Integer);
+var
+  LSurface: TEnginePixelSurface;
+begin
+  if ATextureIndex > Self.TextureCount -1 then
+    Exit;
+  if not Self.Texture[ATextureIndex].Lock(LSurface) then
+    Exit;
+  try
+    Self.Device.ImageFormatManager.SaveToFile(AFile, LSurface);
+  finally
+    Self.Texture[ATextureIndex].Unlock;
+  end;
+end;
+
 function TEngineImageHelper.LoadFromHexString(const AHexData, AExtension: string): Boolean;
 var
 {$IFDEF NEXTGEN}
@@ -245,77 +260,55 @@ begin
   Result:= Self.DefaultTexture.Height;
 end;
 
+function TEngineImageHelper.GetLastTexture: TEngineTexture;
+begin
+  if Self.TextureCount = 0 then
+    Exit(nil);
+  //
+  Result:= Self.Texture[Self.TextureCount-1];
+end;
+
 { TEngineCanvasHelper }
 
 procedure TEngineCanvasHelper.DrawImage(const AImage: TEngineImage;
-  const AQuad: TQuad);
-begin
-  Self.UseTexturePx(AImage.DefaultTexture, Quad(AImage.Rect));
-  Self.TexQuad(AQuad, ColorRectWhite);
-end;
-
-procedure TEngineCanvasHelper.DrawImagePx(const AImage: TEngineImage;
-  const ASourceQuad, ATargetQuad: TQuad; const AColor: TColorRect;
+  const ASourceQuad, ATargetQuad: TQuad; const AColor: TIntColor;
   const ABlendingEffect: TBlendingEffect);
 begin
-  Self.UseTexturePx(AImage.DefaultTexture, ASourceQuad);
-  Self.TexQuad(ATargetQuad, AColor, ABlendingEffect);
+  if Assigned(AImage) then
+  begin
+    Self.UseTexturePx(AImage.DefaultTexture, ASourceQuad);
+    Self.TexQuad(ATargetQuad, AColor, ABlendingEffect);
+  end;
 end;
 
-procedure TEngineCanvasHelper.DrawImageRegion(const AImage: TEngineImage;
+procedure TEngineCanvasHelper.DrawImage(const AImage: TEngineImage;
+  const ATargetQuad: TQuad; const AColor: TIntColor;
+  const ABlendingEffect: TBlendingEffect);
+begin
+  Self.DrawImage(AImage, Quad(AImage.Rect), ATargetQuad, AColor, ABlendingEffect);
+end;
+
+procedure TEngineCanvasHelper.DrawImage(const AImage: TEngineImage;
   const ARegionIndex: Integer; const ATargetQuad: TQuad;
-  const AColor: TIntColor; const AMirror, AFlip: Boolean; const AAngle: Single;
-  const AScale: TPoint2f; const ABlendingEffect: TBlendingEffect);
+  const AColor: TIntColor; const AMirror, AFlip: Boolean; const AAngle,
+  AScale: Single; const ABlendingEffect: TBlendingEffect);
 var
   LSize: TPoint2i;
   LTargetQuad: TQuad;
 begin
-  LSize:= AImage.PatternRect[0].Size;
-  if AAngle <> 0 then
-    LTargetQuad:= ATargetQuad.Rotated(LTargetQuad.TopLeft,
-                                      Point2f(LSize.X, LSize.Y),
-                                      AAngle, AScale.X)
-  else
-    LTargetQuad:= ATargetQuad.Scale(AScale.X);
-  Self.UseImageRegion(AImage, ARegionIndex, AMirror, AFlip);
-  Self.TexQuad(LTargetQuad, AColor, ABlendingEffect);
-end;
-
-procedure TEngineCanvasHelper.DrawImageRegion(const AImage: TEngineImage;
-  const ARegionIndex: Integer; const APosX, APosY: Single;
-  const AColor: TIntColor; const AMirror, AFlip: Boolean;
-  const ABlendingEffect: TBlendingEffect);
-var
-  LSize: TPoint2f;
-begin
-  LSize.X:= AImage.PatternRect[0].Size.X;
-  LSize.Y:= AImage.PatternRect[0].Size.Y;
-  LSize:= LSize * TClientUtils.ScreenScale;
-  Self.UseImageRegion(AImage, ARegionIndex, AMirror, AFlip);
-  Self.TexQuad(Quad(APosX, APosY, LSize.X, LSize.Y), AColor, ABlendingEffect);
-end;
-
-procedure TEngineCanvasHelper.DrawImageRegion(const AImage: TEngineImage;
-  const ARegionIndex: Integer; const APosX, APosY: Single;
-  const AColor: TIntColor; const AMirror, AFlip: Boolean; const AAngle: Single;
-  const AScale: TPoint2f; const ABlendingEffect: TBlendingEffect);
-var
-  LSize: TPoint2f;
-  LTargetQuad: TQuad;
-begin
-  LSize.X:= AImage.PatternRect[0].Size.X;
-  LSize.Y:= AImage.PatternRect[0].Size.Y;
-  LSize:= LSize * TClientUtils.ScreenScale;
-  LTargetQuad:= Quad(APosX, APosY, LSize.X, LSize.Y);
-  if AAngle <> 0 then
-    LTargetQuad:= LTargetQuad.Rotated(LTargetQuad.TopLeft,
-                                      Point2f(LSize.X, LSize.Y),
-                                      AAngle, AScale.X)
-  else
-    LTargetQuad:= LTargetQuad.Scale(AScale.X);
-  //
-  Self.UseImageRegion(AImage, ARegionIndex, AMirror, AFlip);
-  Self.TexQuad(LTargetQuad, AColor, ABlendingEffect);
+  if ARegionIndex < AImage.Regions.Count then
+  begin
+    LSize:= AImage.PatternRect[0].Size;
+    if AAngle <> 0 then
+      LTargetQuad:= ATargetQuad.Rotated(LTargetQuad.TopLeft,
+                                        Point2f(LSize.X, LSize.Y),
+                                        AAngle, AScale)
+    else
+      LTargetQuad:= ATargetQuad.Scale(AScale);
+    //
+    Self.UseImageRegion(AImage, ARegionIndex, AMirror, AFlip);
+    Self.TexQuad(LTargetQuad, AColor, ABlendingEffect);
+  end;
 end;
 
 { TArchiveHelper }

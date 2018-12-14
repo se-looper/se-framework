@@ -25,9 +25,11 @@ uses
   PXL.Types, PXL.Fonts,
   { SE Framework }
   se.utils.client, se.game.helper, se.game.stage, se.game.assetsmanager,
-  se.game.sprite,
+  se.game.sprite, se.game.types,
   se.game.script.package, se.game.script.package.ui, se.game.script.package.sound,
-  se.game.window, se.game.window.style;
+  se.game.script.package.net,
+  se.game.window, se.game.window.style,
+  se.game.font.types, se.game.font.classes, se.game.font;
 
 type
   TRankWindow = class(TWindow)
@@ -43,6 +45,11 @@ type
     procedure ShowMe; override;
   end;
 
+  TPlayer = class(TAnimatedSprite)
+  public
+    procedure DoMove(const AMoveCount: Single); override;
+  end;
+
   TMainForm = class(TForm)
     SysTimer: TTimer;
     procedure FormCreate(Sender: TObject);
@@ -50,14 +57,13 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure SysTimerTimer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     FGameStage: TGameStage;
-    EngineFonts: TBitmapFonts;
-    FontTahoma: Integer;
-    FStrings: TStrings;
-    FUIPackage: TUIPackage;
     procedure DoRender(Sender: TObject);
-    procedure DoPrint(const AMsg: string);
   public
     { Public declarations }
   end;
@@ -207,69 +213,43 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 var
   LPackage: TScriptPackage;
-  I: Integer;
 begin
   FGameStage:= TGameStage.Create(Self);
   FGameStage.OnRender:= DoRender;
-  FGameStage.AssetsRoot:= GetMediaPath;
+  FGameStage.AssetsRoot:= GetMediaPath + 'data';
   FGameStage.ScriptRoot:= GetMediaPath + 'script';
-
-  EngineFonts:= TBitmapFonts.Create(FGameStage.Canvas.Device);
-  EngineFonts.Canvas:= FGameStage.Canvas;
-  FontTahoma:= EngineFonts.AddFromXMLFile(GetMediaPath + 'Tahoma9b.png');
-  if FontTahoma = -1 then
+  if not FGameStage.RunWith(AssetsManager.RequireScene('start')) then
   begin
-    MessageDlg('Could not load Tahoma font.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOk], 0);
+    MessageDlg('Failed to initialize Start Scene.', TMsgDlgType.mtError, [TMsgDlgBtn.mbOk], 0);
     Application.Terminate;
     Exit;
   end;
 
-  FStrings:= TStringList.Create;
-
-  //right & top
-  with TGUISprite.Create(FGameStage.SpriteManager) do
-  begin
-    Name:= 'btnShowLogin';
-    Image:= AssetsManager.Require('head01.png');
-    Width:= Image.Width;
-    Height:= Image.Height;
-    Align:= TAlignMode.amRightTop;
-    Margins.Right:= 30;
-  end;
-
-  //bottom & center
-  with TGUISprite.Create(FGameStage.SpriteManager) do
-  begin
-    Name:= 'btnShowRank';
-    Image:= AssetsManager.Require('rank_btn.png');
-    Width:= Image.Width;
-    Height:= Image.Height;
-    Align:= TAlignMode.amCenterBottom;
-    //HitTest:= False;
-  end;
+  FGameStage.SpriteManager.DefaultFont.Compile(ZeroPoint2f, TFontTypes.PresetText,
+    TFontTypes.OptimumFontSize, TFontCharStyle.Default, ZeroIntRect);
 
   // ui package
   LPackage:= FGameStage.RegScriptPackage(TUIPackage, 'UIPackage');
   if Assigned(LPackage) then
   begin
-    FUIPackage:= TUIPackage(LPackage);
-    FUIPackage.OwnerForm:= Self;
-    FUIPackage.SpriteManager:= FGameStage.SpriteManager;
+    TUIPackage(LPackage).WindowFactory:= FGameStage.WindowFactory;
+    TUIPackage(LPackage).SpriteManager:= FGameStage.SpriteManager;
+    TUIPackage(LPackage).SceneManager := FGameStage.SceneManager;
     // test: make loginwindow by lyt file
-    FUIPackage.RegWindow(GetMediaPath+'ui\login.lyt');
+    TUIPackage(LPackage).RegWindow(AssetsManager.RequireFile('login.lyt'));
     // test: make rankwindow by native
-    FUIPackage.RegWindow('frmRank', TRankWindow.Create(nil));
+    TUIPackage(LPackage).RegWindow('frmRank', TRankWindow.Create(nil));
   end;
   // sound package
   LPackage:= FGameStage.RegScriptPackage(TSoundPackage, 'SoundPackage');
+  // net package
+  LPackage:= FGameStage.RegScriptPackage(TNetPackage, 'NetPackage');
   // drive with lua
   FGameStage.DriveWithScript('app.lua', 'InitRunEnvironment', 'Start');
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(EngineFonts);
-  FreeAndNil(FStrings);
   FreeAndNil(FGameStage);
 end;
 
@@ -287,41 +267,64 @@ begin
   FGameStage.NotifyTick;
 end;
 
-procedure TMainForm.DoPrint(const AMsg: string);
+procedure TMainForm.Button1Click(Sender: TObject);
 begin
-  FStrings.Add(AMsg);
+  FGameStage.SpriteManager.WorldX:= FGameStage.SpriteManager.WorldX - 10;
+end;
+
+procedure TMainForm.Button2Click(Sender: TObject);
+begin
+  FGameStage.SpriteManager.WorldY:= FGameStage.SpriteManager.WorldY - 10;
+end;
+
+procedure TMainForm.Button3Click(Sender: TObject);
+begin
+  FGameStage.SpriteManager.WorldX:= FGameStage.SpriteManager.WorldX + 10;
+end;
+
+procedure TMainForm.Button4Click(Sender: TObject);
+begin
+  FGameStage.SpriteManager.WorldY:= FGameStage.SpriteManager.WorldY + 10;
 end;
 
 procedure TMainForm.DoRender(Sender: TObject);
 var
   I: Integer;
+  LLogs: TArray<string>;
 begin
-  EngineFonts[FontTahoma].DrawText(
-    Point2f(4.0, 4.0),
-    'FPS: ' + IntToStr(FGameStage.FrameRate),
-    ColorPair($FFFFE887, $FFFF0000));
+  if Assigned(FGameStage.SpriteManager.DefaultFont) then
+  begin
+    FGameStage.SpriteManager.DefaultFont.DrawText(Point2f(4.0, 4.0),
+      'FPS: ' + IntToStr(FGameStage.FrameRate),
+      18, TFontCharStyle.Default($FFFFE887), ZeroIntRect);
 
-  EngineFonts[FontTahoma].DrawText(
-    Point2f(4.0, 24.0),
-    'Technology: ' + FGameStage.FullDeviceTechString,
-    ColorPair($FFE8FFAA, $FF12C312));
+    FGameStage.SpriteManager.DefaultFont.DrawText(Point2f(4.0, 30.0),
+      'Technology: ' + FGameStage.FullDeviceTechString,
+      18, TFontCharStyle.Default($FFE8FFAA), ZeroIntRect);
 
-  for I:= 0 to FStrings.Count -1 do
-    EngineFonts[FontTahoma].DrawText(
-      Point2f(200.0, 100.0 + (I+1)*20),
-      FStrings[I],
-      ColorPair($FFE8FFAA, $FF12C312));
-
-  for I:= 0 to Length(FGameStage.Logs) -1 do
-    EngineFonts[FontTahoma].DrawText(
-      Point2f(200.0, 100.0 + (I+FStrings.Count+1)*20),
-      FGameStage.Logs[I],
-      ColorPair($FFE8FFAA, $FF12C312));
+    LLogs:= FGameStage.Logs;
+    for I:= 0 to Length(LLogs) -1 do
+      FGameStage.SpriteManager.DefaultFont.DrawText(Point2f(200.0, 100.0 + (I+1)*20), LLogs[I],
+        16, TFontCharStyle.Default($FFE8FFAA), ZeroIntRect);
+  end;
 end;
 
 procedure TMainForm.SysTimerTimer(Sender: TObject);
 begin
   MainForm.Invalidate;
+end;
+
+{ TPlayer }
+
+procedure TPlayer.DoMove(const AMoveCount: Single);
+begin
+  inherited;
+  if Self.Active then
+  begin
+    X:= FManager.WorldX + 320;
+    Y:= FManager.WorldY + 200;
+    FManager.WorldY:= FManager.WorldY - 2;
+  end;
 end;
 
 end.

@@ -14,11 +14,12 @@ unit se.game.stage;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.UITypes,
+  System.Classes, System.SysUtils, System.UITypes, System.Math,
   FMX.Forms, FMX.Dialogs,
   PXL.Types, PXL.Timing, PXL.Devices, PXL.Canvas, PXL.Providers, PXL.FMBridge,
-  se.utils.client, se.game.assetsmanager, se.game.script, se.game.script.package,
-  se.game.sprite;
+  se.utils.client, se.game.types, se.game.helper, se.game.assetsmanager,
+  se.game.script, se.game.script.package, se.game.sprite, se.game.window,
+  se.game.scene;
 
 type
   TGameStage = class
@@ -39,6 +40,9 @@ type
     function GetFullDeviceTechString: string;
     function GetFrameRate: Integer;
   private
+    procedure DoPrint(AMsg: string);
+    procedure DoErrorPrint(AMsg: string);
+  private
     /// <remark>
     ///   资源管理
     /// </remark>
@@ -55,13 +59,22 @@ type
     FScriptSystem: TScriptSystem;
     FScriptRoot: string;
     procedure SetScriptRoot(const Value: string);
-    procedure DoScriptPrint(AMsg: string);
-    procedure DoScriptError(AMsg: string);
+    function GetScriptPackage(const Name: string): TScriptPackage;
   private
     /// <remark>
     ///   精灵管理器
     /// </remark>
     FSpriteManager: TSpriteManager;
+  private
+    /// <remark>
+    ///   场景管理器
+    /// </remark>
+    FSceneManager: TSceneManager;
+  private
+    /// <remark>
+    ///   窗口管理器
+    /// </remark>
+    FWindowFactory: TWindowFactory;
   private
     /// <remark>
     ///   日志
@@ -73,7 +86,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   FMultiTimer.NotifyTick
+    ///   计时
     /// </summary>
     procedure NotifyTick;
     /// <summary>
@@ -90,6 +103,10 @@ type
     /// </summary>
     procedure DriveWithScript(const ALuaFile, AInitRunEnvironmentMethodName,
       AStartMethodName: string);
+    /// <summary>
+    ///   加载指定场景
+    /// </summary>
+    function RunWith(const AScene: TSceneData): Boolean;
   public
     /// <summary>
     ///   数据更新事件
@@ -137,11 +154,25 @@ type
     ///   脚本文件的根目录
     /// </summary>
     property ScriptRoot: string read FScriptRoot write SetScriptRoot;
+    /// <summary>
+    ///   获取脚本包
+    /// </summary>
+    property ScriptPackage[const Name: string]: TScriptPackage read GetScriptPackage;
   public
     /// <summary>
     ///   精灵管理器
     /// </summary>
     property SpriteManager: TSpriteManager read FSpriteManager;
+  public
+    /// <summary>
+    ///   场景管理器
+    /// </summary>
+    property SceneManager: TSceneManager read FSceneManager;
+  public
+    /// <summary>
+    ///   窗口管理器
+    /// </summary>
+    property WindowFactory: TWindowFactory read FWindowFactory;
   public
     /// <summary>
     ///   Log
@@ -159,7 +190,7 @@ begin
   FLogs:= TStringList.Create;
   FTicks:= 0;
   FAssetsRoot:= '';
-  FAssetsType:= [TAssetsType.atPng, TAssetsType.atJpg, TAssetsType.atOgg];
+  FAssetsType:= [atTTF, atPng, atJpg, atOgg, atScene, atLayout];
   FAssetsMode:= [TAssetsMode.amNormal];
   //
   if AForm = nil then
@@ -194,15 +225,25 @@ begin
   FMultiTimer.OnProcess:= EngineProcess;
   FMultiTimer.MaxFPS:= 4000;
   //
+  AssetsManager.Canvas:= FCanvas;
+  AssetsManager.OnPrint:= DoPrint;
+  //
   FScriptSystem:= TScriptSystem.Create;
-  FScriptSystem.OnPrint:= DoScriptPrint;
-  FScriptSystem.OnError:= DoScriptError;
+  FScriptSystem.OnPrint:= DoPrint;
+  FScriptSystem.OnError:= DoErrorPrint;
   //
   FSpriteManager:= TSpriteManager.Create(AForm);
   FSpriteManager.Canvas:= FCanvas;
-
+  FSpriteManager.OnPrint:= DoPrint;
+  //
+  FSceneManager:= TSceneManager.Create(FSpriteManager);
+  FSceneManager.OnPrint:= DoPrint;
+  //
+  FWindowFactory:= TWindowFactory.Create;
+  FWindowFactory.OwnerForm:= AForm;
+  FWindowFactory.OnPrint:= DoPrint;
+  //
   Self.Resize;
-  AssetsManager.Canvas:= FCanvas;
 end;
 
 destructor TGameStage.Destroy;
@@ -210,6 +251,8 @@ begin
   FreeAndNil(FMultiTimer);
   FreeAndNil(FScriptSystem);
   FreeAndNil(FSpriteManager);
+  FreeAndNil(FSceneManager);
+  FreeAndNil(FWindowFactory);
   FreeAndNil(FCanvas);
   FreeAndNil(FDevice);
   FreeAndNil(FDeviceProvider);
@@ -256,6 +299,7 @@ begin
 {$IFDEF MSWINDOWS}
   FDisplaySize:= Point2i(Round(FForm.ClientWidth  * TClientUtils.ScreenScale),
                          Round(FForm.ClientHeight * TClientUtils.ScreenScale));
+//  FWindowFactory.Resize(Min(FDisplaySize.X/960, FDisplaySize.Y/540));
 {$ELSE}
   FDisplaySize.X:= TClientUtils.PhysicalScreenSize.cx;
   FDisplaySize.Y:= TClientUtils.PhysicalScreenSize.cy;
@@ -263,9 +307,21 @@ begin
   FSpriteManager.Resize(FDisplaySize.X, FDisplaySize.Y);
 end;
 
+function TGameStage.RunWith(const AScene: TSceneData): Boolean;
+begin
+  if not Assigned(AScene) then
+    Exit(False);
+  Result:= FSceneManager.Switch(AScene);
+end;
+
 function TGameStage.GetScreenScale: Single;
 begin
   Result:= TClientUtils.ScreenScale;
+end;
+
+function TGameStage.GetScriptPackage(const Name: string): TScriptPackage;
+begin
+  Result:= FScriptSystem.Package[Name];
 end;
 
 function TGameStage.GetFullDeviceTechString: string;
@@ -321,14 +377,14 @@ begin
   Result:= FLogs.ToStringArray;
 end;
 
-procedure TGameStage.DoScriptError(AMsg: string);
-begin
-  FLogs.Add('[ERROR] ' + AMsg);
-end;
-
-procedure TGameStage.DoScriptPrint(AMsg: string);
+procedure TGameStage.DoPrint(AMsg: string);
 begin
   FLogs.Add('[INFO] ' + AMsg);
+end;
+
+procedure TGameStage.DoErrorPrint(AMsg: string);
+begin
+  FLogs.Add('[ERROR] ' + AMsg);
 end;
 
 function TGameStage.RegScriptPackage(const AClass: TScriptPackageClass;

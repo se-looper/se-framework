@@ -16,15 +16,14 @@ interface
 uses
   System.Classes, System.SysUtils, FMX.Forms, FMX.Controls,
   VerySimple.Lua, VerySimple.Lua.Lib,
-  se.game.types, se.game.script.package, se.game.sprite, se.game.window;
+  se.game.types, se.game.script.package, se.game.window, se.game.sprite, se.game.scene;
 
 type
   TUIPackage = class(TScriptPackage)
   private
     FWindowFactory: TWindowFactory;
-    FOwnerForm: TForm;
     FSpriteManager: TSpriteManager;
-    procedure SetOwnerForm(const Value: TForm);
+    FSceneManager : TSceneManager;
   private
     /// <summary>
     ///   注册指定精灵的点击事件
@@ -53,13 +52,17 @@ type
     /// </summary>
     function RegWindow(const AFileName: string): Boolean; overload;
     /// <summary>
-    ///   所在窗口,一般传入主窗口Application.MainForm
+    ///   窗口管理器
     /// </summary>
-    property OwnerForm: TForm read FOwnerForm write SetOwnerForm;
+    property WindowFactory: TWindowFactory read FWindowFactory write FWindowFactory;
     /// <summary>
     ///   精灵管理器
     /// </summary>
     property SpriteManager: TSpriteManager read FSpriteManager write FSpriteManager;
+    /// <summary>
+    ///   场景管理器
+    /// </summary>
+    property SceneManager: TSceneManager read FSceneManager write FSceneManager;
   published
     /// <summary>
     ///   注册窗口中指定控件的点击事件
@@ -73,6 +76,10 @@ type
     ///   关闭窗口
     /// </summary>
     function closeWindow(L: lua_State): Integer;
+    /// <summary>
+    ///   切换场景
+    /// </summary>
+    function switchScene(L: lua_State): Integer;
   end;
 
 implementation
@@ -82,12 +89,12 @@ implementation
 constructor TUIPackage.Create;
 begin
   inherited;
-  FWindowFactory:= TWindowFactory.Create;
+
 end;
 
 destructor TUIPackage.Destroy;
 begin
-  FreeAndNil(FWindowFactory);
+
   inherited;
 end;
 
@@ -109,11 +116,12 @@ begin
   RegFunction('registerClickEvent','registerClickEvent');
   RegFunction('showWindow','showWindow');
   RegFunction('closeWindow','closeWindow');
+  RegFunction('switchScene','switchScene');
 end;
 
 function TUIPackage.RegWindow(const AName: string; AWindow: TWindow): Boolean;
 begin
-  AWindow.Parent:= FOwnerForm;
+  AWindow.Parent:= FWindowFactory.OwnerForm;
   AWindow.OnControlClick:= DoControlClick;
   Result:= FWindowFactory.RegWindow(AName, AWindow);
 end;
@@ -124,12 +132,6 @@ var
 begin
   LWindow:= TWindow.Create(nil, AFileName);
   Result:= Self.RegWindow(LWindow.Name, LWindow);
-end;
-
-procedure TUIPackage.SetOwnerForm(const Value: TForm);
-begin
-  FOwnerForm:= Value;
-  FWindowFactory.OwnerForm:= FOwnerForm;
 end;
 
 procedure TUIPackage.RegisterSpriteClickEvent(const ASpriteName: string;
@@ -154,7 +156,9 @@ begin
   LControlName:= lua_tostring(L, 3);
   LMsgcode:= lua_tointeger(L, 4);
   //
-  if Assigned(FOwnerForm) and Assigned(FSpriteManager) and LFormName.Equals(FOwnerForm.Name) then
+  if Assigned(FWindowFactory.OwnerForm) and
+     Assigned(FSpriteManager) and
+     LFormName.Equals(FWindowFactory.OwnerForm.Name) then
     RegisterSpriteClickEvent(LControlName, LMsgcode)
   else
     FWindowFactory.RegisterClickEvent(LFormName, LControlName, LMsgcode);
@@ -167,7 +171,7 @@ var
   LFormName: string;
 begin
   LFormName:= lua_tostring(L, 2);
-  FWindowFactory.ShowWindow(LFormName);
+  FWindowFactory.Show(LFormName);
   Result:= 0;
 end;
 
@@ -176,7 +180,16 @@ var
   LFormName: string;
 begin
   LFormName:= lua_tostring(L, 2);
-  FWindowFactory.CloseWindow(LFormName);
+  FWindowFactory.Close(LFormName);
+  Result:= 0;
+end;
+
+function TUIPackage.switchScene(L: lua_State): Integer;
+var
+  LSceneName: string;
+begin
+  LSceneName:= lua_tostring(L, 2);
+  FSceneManager.Switch(LSceneName);
   Result:= 0;
 end;
 

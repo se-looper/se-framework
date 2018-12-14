@@ -15,11 +15,11 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Types, System.UITypes, System.IOUtils,
-  System.Generics.Collections, XSuperObject, PXL.Types,
-  se.game.types, se.game.helper;
+  System.Generics.Collections, XSuperObject, PXL.Types, se.utils.client,
+  se.game.types, se.game.helper, se.game.font, se.game.font.ttf;
 
 type
-  TAssetsType = (atPackage, atPng, atJpg, atTTF, atOgg, atWav, atMap);
+  TAssetsType = (atPackage, atPng, atJpg, atTTF, atOgg, atWav, atMap, atScene, atLayout);
   TAssetsTypes = set of TAssetsType;
 
   TAssetsMode = (amNormal, amAtlas);
@@ -43,6 +43,9 @@ type
     FChunkMap: TDictionary<string, TIntRect>;
     FSoundMap: TDictionary<string, string>;
     FPXLArchiveMap: TObjectDictionary<string, TEngineArchive>;
+    FFontFactoryMap: TObjectDictionary<string, TFontGlyphFactory>;
+    FFontMap: TObjectDictionary<string, TFontInstance>;
+    FSceneMap: TObjectDictionary<string, TSceneData>;
     procedure SetCanvas(const Value: TEngineCanvas);
     /// <summary>
     ///   解析图片集配置
@@ -82,21 +85,32 @@ type
     /// </summary>
     property Canvas: TEngineCanvas read FCanvas write SetCanvas;
     /// <summary>
+    ///   信息打印
+    /// </summary>
+    property OnPrint: TNotifyInfoEvent read FOnPrint write FOnPrint;
+    /// <summary>
     ///   资源根目录
     /// </summary>
     property Root: string read FRoot;
   public
-    // example: Require('start_bg.png')
-    function Require(const AKey: string;
+    // example: RequireImage('start_bg.png')
+    function RequireImage(const AKey: string;
       const AUseDefault: Boolean = True): TEngineImage; overload;
-    // example: Require(obj, 'player_idle')
-    function Require(const AArchive: TEngineArchive; const AKey: string;
+    // example: RequireImage('start_bg.png', (160,80), 16);
+    function RequireImage(const AKey: string; const APatternSize: TPoint2i;
+      const APatternCount: Integer = 0): TEngineImage; overload;
+    // example: RequireImage(obj, 'player_idle')
+    function RequireImage(const AArchive: TEngineArchive; const AKey: string;
       const AUseDefault: Boolean = True): TEngineImage; overload;
-    // example: Require('data.asvf', 'player_idle')
-    function Require(const APackageName, AKey: string;
+    // example: RequireImage('data.asvf', 'player_idle')
+    function RequireImage(const APackageName, AKey: string;
       const AUseDefault: Boolean = True): TEngineImage; overload;
     // example: RequireFile('ui.atlas') -> file path
     function RequireFile(const AKey: string): string;
+    // example: RequireFont('droid') -> TFontInstance
+    function RequireFont(const AKey: string): TFontInstance;
+    // example: RequireScene('start') -> TScene
+    function RequireScene(const AKey: string): TSceneData;
   end;
 
   function AssetsManager: TAssetsManager;
@@ -141,6 +155,9 @@ begin
   FChunkMap:= TDictionary<string, TIntRect>.Create;
   FSoundMap:= TDictionary<string, string>.Create;
   FPXLArchiveMap:= TObjectDictionary<string, TEngineArchive>.Create([doOwnsValues]);
+  FFontFactoryMap:= TObjectDictionary<string, TFontGlyphFactory>.Create([doOwnsValues]);
+  FFontMap:= TObjectDictionary<string, TFontInstance>.Create([doOwnsValues]);
+  FSceneMap:= TObjectDictionary<string, TSceneData>.Create([doOwnsValues]);
 end;
 
 destructor TAssetsManager.Destroy;
@@ -151,6 +168,9 @@ begin
   FreeAndNil(FChunkMap);
   FreeAndNil(FSoundMap);
   FreeAndNil(FPXLArchiveMap);
+  FreeAndNil(FFontFactoryMap);
+  FreeAndNil(FFontMap);
+  FreeAndNil(FSceneMap);
 end;
 
 class destructor TAssetsManager.Destroy;
@@ -218,21 +238,15 @@ var
   LFileName, LFileExt: string;
 begin
   if ARoot = '' then Exit;
-{$IFDEF MSWINDOWS}
   FRoot:= IncludeTrailingPathDelimiter(ARoot);
-{$ELSE}
-  {$IFDEF ANDROID}
-  FRoot:= TPath.GetDocumentsPath + '/';
-  {$ELSE}
-  FRoot:= ExtractFilePath(ParamStr(0)) + '/';
-  {$ENDIF}
-{$ENDIF}
   //
   FFileMap.Clear;
   FImageMap.Clear;
   FChunkMap.Clear;
   FSoundMap.Clear;
   FPXLArchiveMap.Clear;
+  FFontFactoryMap.Clear;
+  FSceneMap.Clear;
   LFiles:= TDirectory.GetFiles(FRoot, '*.*', TSearchOption.soAllDirectories);
   for I:= 0 to Length(LFiles) -1 do
   begin
@@ -245,22 +259,28 @@ begin
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
         LoadPXLArchive(LFiles[I]);
       end;
-      if LFileExt.Equals('.png')  and (atPng in AType) then
+      if LFileExt.Equals('.png')   and (atPng in AType) then
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
-      if LFileExt.Equals('.jpg')  and (atJpg in AType) then
+      if LFileExt.Equals('.jpg')   and (atJpg in AType) then
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
-      if LFileExt.Equals('.ogg')  and (atOgg in AType) then
+      if LFileExt.Equals('.ttf')   and (atTTF in AType) then
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
-      if LFileExt.Equals('.wav')  and (atWav in AType) then
+      if LFileExt.Equals('.ogg')   and (atOgg in AType) then
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
-      if LFileExt.Equals('.map')  and (atMap in AType) then
+      if LFileExt.Equals('.wav')   and (atWav in AType) then
+        FFileMap.AddOrSetValue(LFileName, LFiles[I]);
+      if LFileExt.Equals('.map')   and (atMap in AType) then
+        FFileMap.AddOrSetValue(LFileName, LFiles[I]);
+      if LFileExt.Equals('.scene') and (atScene in AType) then
+        FFileMap.AddOrSetValue(LFileName, LFiles[I]);
+      if LFileExt.Equals('.lyt')   and (atLayout in AType) then
         FFileMap.AddOrSetValue(LFileName, LFiles[I]);
     end;
     //
     if LFileExt.Equals('.atlas') and (amAtlas in AMode) then
     begin
       FFileMap.AddOrSetValue(LFileName, LFiles[I]);
-      ParseAtlas(LFiles[I]);
+      Self.ParseAtlas(LFiles[I]);
     end;
   end;
 end;
@@ -285,7 +305,7 @@ begin
   end;
 end;
 
-function TAssetsManager.Require(const AKey: string;
+function TAssetsManager.RequireImage(const AKey: string;
   const AUseDefault: Boolean): TEngineImage;
 var
   LFile: string;
@@ -314,7 +334,15 @@ begin
   end;
 end;
 
-function TAssetsManager.Require(const AArchive: TEngineArchive;
+function TAssetsManager.RequireImage(const AKey: string;
+  const APatternSize: TPoint2i; const APatternCount: Integer): TEngineImage;
+begin
+  Result:= Self.RequireImage(AKey, False);
+  if Result.Regions.Count <> APatternCount then
+    Result.SetupRegionPatterns(APatternSize, APatternSize, APatternCount);
+end;
+
+function TAssetsManager.RequireImage(const AArchive: TEngineArchive;
   const AKey: string; const AUseDefault: Boolean): TEngineImage;
 begin
   Result:= AArchive.LoadImage(FCanvas, AKey);
@@ -328,7 +356,7 @@ begin
   FImageMap.Add(AKey+'.image', Result);
 end;
 
-function TAssetsManager.Require(const APackageName, AKey: string;
+function TAssetsManager.RequireImage(const APackageName, AKey: string;
   const AUseDefault: Boolean): TEngineImage;
 var
   LArchive: TEngineArchive;
@@ -342,12 +370,55 @@ begin
     else
       Exit(nil);
   end;
-  Result:= Require(LArchive, AKey, AUseDefault);
+  Result:= Self.RequireImage(LArchive, AKey, AUseDefault);
 end;
 
 function TAssetsManager.RequireFile(const AKey: string): string;
 begin
   FFileMap.TryGetValue(AKey, Result);
+end;
+
+function TAssetsManager.RequireFont(const AKey: string): TFontInstance;
+var
+  LFactoryKey, LFile: string;
+  LFactory: TFontGlyphFactory;
+begin
+  if FFontMap.TryGetValue(AKey, Result) then
+    Exit;
+  //
+  LFactory:= nil;
+  LFactoryKey:= AKey + '.ttf';
+  if not FFontFactoryMap.TryGetValue(LFactoryKey, LFactory) then
+  begin
+    if not FFileMap.TryGetValue(LFactoryKey, LFile) then
+      Exit(nil);
+    //
+    LFactory:= TTTFFont.Create(1.0);
+    LFactory.Canvas:= FCanvas;
+    LFactory.LoadFromFile(LFile);
+    FFontFactoryMap.Add(LFactoryKey, LFactory);
+  end;
+  //
+  if LFactory.Ready then
+  begin
+    Result:= TFontInstance.Create(FCanvas);
+    Result.Factory:= LFactory;
+    FFontMap.Add(AKey, Result);
+  end;
+end;
+
+function TAssetsManager.RequireScene(const AKey: string): TSceneData;
+var
+  LFile: string;
+begin
+  if not FSceneMap.TryGetValue(AKey, Result) then
+  begin
+    if not FFileMap.TryGetValue(AKey+'.scene', LFile) then
+      Exit(nil);
+    //
+    Result:= TSceneData.Create(LFile);
+    FSceneMap.Add(AKey, Result);
+  end;
 end;
 
 end.

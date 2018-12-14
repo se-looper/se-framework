@@ -1,0 +1,34 @@
+{
+	"map": "",
+	"gui": [{
+			"name": "main_imgBackground",
+			"width": 1920,
+			"height": 1080,
+			"image": "background.png",
+			"align": "amLeftTop",
+			"hittest": false,
+			"zorder": -100
+		},
+		{
+			"name": "main_btnChangeRole",
+			"width": 514,
+			"height": 32,
+			"image": "rolenamebg.png",
+			"align": "amCenterBottom",
+			"hittest": true,
+			"margins": {
+				"bottom": 110
+			},
+			"zorder": -99,
+			"text": {
+				"name": "main_txtRoleName",
+				"text": "ÓÎÏ·½ÇÉ«Ãû³Æ²âÊÔ",
+				"font": {
+					"size": 32,
+					"color": "FFFF0000"
+				},
+				"textalign": "tamCenter"
+			}
+		}
+	]
+}

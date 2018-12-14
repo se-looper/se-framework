@@ -1,0 +1,16 @@
+[{
+		"name": "frmRegister",
+		"image": "login_bg.png"
+	},
+	{
+		"name": "imgTitle",
+		"image": "login_title.png"
+	},
+	{
+		"name": "btnLogin",
+		"image": "login.png",
+		"mousedown": "ImageButtonMouseDown",
+		"mouseup": "ImageButtonMouseUp",
+		"mouseleave": "ImageButtonMouseLeave"
+	}
+]

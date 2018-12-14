@@ -1,0 +1,100 @@
+object frmLogin: TRectangle
+  Align = Center
+  Fill.Bitmap.WrapMode = Tile
+  Fill.Kind = Bitmap
+  Size.Width = 300.000000000000000000
+  Size.Height = 285.000000000000000000
+  Size.PlatformDefault = False
+  Stroke.Kind = None
+  object imgTitle: TImage
+    MultiResBitmap.Height = 285
+    MultiResBitmap.Width = 300
+    MultiResBitmap.LoadSize = 2
+    MultiResBitmap = <
+      item
+      end>
+    Align = Top
+    Margins.Left = 25.000000000000000000
+    Margins.Top = 40.000000000000000000
+    Margins.Right = 25.000000000000000000
+    Position.X = 25.000000000000000000
+    Position.Y = 40.000000000000000000
+    Size.Width = 250.000000000000000000
+    Size.Height = 41.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object edtUserName: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    Align = VertCenter
+    TabOrder = 1
+    Position.X = 80.000000000000000000
+    Position.Y = 122.000000000000000000
+    Margins.Left = 80.000000000000000000
+    Margins.Right = 30.000000000000000000
+    Margins.Bottom = 20.000000000000000000
+    Size.Width = 190.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object edtPassword: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    Align = VertCenter
+    TabOrder = 2
+    Position.X = 80.000000000000000000
+    Position.Y = 167.000000000000000000
+    Margins.Left = 80.000000000000000000
+    Margins.Top = 70.000000000000000000
+    Margins.Right = 30.000000000000000000
+    Size.Width = 190.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object btnLogin: TImage
+    MultiResBitmap.Height = 59
+    MultiResBitmap.LoadSize = 2
+    MultiResBitmap = <
+      item
+      end>
+    Align = Bottom
+    Margins.Left = 76.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 76.000000000000000000
+    Margins.Bottom = 20.000000000000000000
+    Position.X = 76.000000000000000000
+    Position.Y = 215.000000000000000000
+    Size.Width = 148.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object lblUserName: TLabel
+    Align = VertCenter
+    StyledSettings = [Family, Size]
+    Margins.Left = 25.000000000000000000
+    Margins.Right = 220.000000000000000000
+    Margins.Bottom = 18.000000000000000000
+    Position.X = 25.000000000000000000
+    Position.Y = 125.000000000000000000
+    Size.Width = 55.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.FontColor = claWhite
+    Text = #29992#25143#21517#65306
+    TabOrder = 4
+  end
+  object lblPassword: TLabel
+    Align = VertCenter
+    StyledSettings = [Family, Size]
+    Margins.Left = 25.000000000000000000
+    Margins.Top = 70.000000000000000000
+    Margins.Right = 220.000000000000000000
+    Margins.Bottom = -2.000000000000000000
+    Position.X = 25.000000000000000000
+    Position.Y = 170.000000000000000000
+    Size.Width = 55.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.FontColor = claWhite
+    Text = #23494'    '#30721#65306
+    TabOrder = 5
+  end
+end

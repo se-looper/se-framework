@@ -42,6 +42,7 @@ type
     ///   调用Lua中的方法, 无参数
     /// </summary>
     procedure InvokeLuaMethod(const ALuaMethodName: string); overload;
+    function GetPackage(const Name: string): TScriptPackage;
   public
     constructor Create;
     destructor Destroy; override;
@@ -72,6 +73,8 @@ type
     /// </remark>
     procedure Run(const AFileName, AInitRunEnvironmentMethodName,
       AStartMethodName: string);
+
+    property Package[const Name: string]: TScriptPackage read GetPackage;
   end;
 
 implementation
@@ -115,6 +118,16 @@ destructor TScriptSystem.Destroy;
 begin
   FreeAndNil(FPackageList);
   inherited;
+end;
+
+function TScriptSystem.GetPackage(const Name: string): TScriptPackage;
+var
+  I: Integer;
+begin
+  Result:= nil;
+  for I:= 0 to FPackageList.Count -1 do
+    if FPackageList[I].Name = Name then
+      Exit(FPackageList[I]);
 end;
 
 function TScriptSystem.IndexOfPackageName(const AName: string): Integer;

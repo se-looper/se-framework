@@ -1,0 +1,71 @@
+{
+	"map": "",
+	"gui": [{
+			"name": "start_imgBackground",
+			"width": 1920,
+			"height": 1080,
+			"image": "background.png",
+			"align": "amLeftTop",
+			"hittest": false,
+			"zorder": -100
+		},
+		{
+			"name": "start_btnChangeRole",
+			"width": 514,
+			"height": 32,
+			"image": "rolenamebg.png",
+			"align": "amCenterBottom",
+			"hittest": true,
+			"margins": {
+				"bottom": 110
+			},
+			"zorder": -99,
+			"text": {
+				"name": "start_txtRoleName",
+				"text": "游戏角色名称测试",
+				"font": {
+					"size": 30,
+					"color": "FFFF0000"
+				},
+				"textalign": "tamCenter"
+			}
+		},
+		{
+			"name": "start_btnStart",
+			"width": 191,
+			"height": 35,
+			"image": "start.png",
+			"align": "amCenterBottom",
+			"hittest": true,
+			"margins": {
+				"bottom": 50
+			},
+			"childs": [{
+				"name": "start_imgtest",
+				"width": 40,
+				"height": 42,
+				"image": "sys_miss.png",
+				"align": "amRightBottom",
+				"hittest": true
+			}]
+		},
+		{
+			"name": "start_imgbgBiaoYu",
+			"width": 960,
+			"height": 20,
+			"image": "bg3.png",
+			"align": "amCenterBottom",
+			"hittest": false,
+			"zorder": -99,
+			"text": {
+				"name": "start_txtBiaoYu",
+				"text": "抵制不良游戏 拒绝盗版游戏 注意自我保护 谨防受骗上当 适度游戏益脑 沉迷游戏伤身 合理安排时间 享受健康生活",
+				"font": {
+					"size": 16,
+					"color": "FFFFFFFF"
+				},
+				"textalign": "tamCenter"
+			}
+		}
+	]
+}

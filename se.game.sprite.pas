@@ -20,39 +20,11 @@ uses
   System.Classes, System.SysUtils, System.Generics.Collections, System.Math,
   System.Types, System.UITypes, System.Generics.Defaults,
   FMX.Types, FMX.Forms,
-  PXL.Types, se.game.types, se.game.helper, se.utils.client;
+  PXL.Types, se.utils.client,
+  se.game.types, se.game.helper, se.game.assetsmanager,
+  se.game.font.types, se.game.font, se.game.font.classes;
 
 type
-  //碰撞模式
-  TCollideMode   = (cmCircle,           // 圆
-                    cmRect,             // 矩形
-                    cmQuadrangle,       // 四边形
-                    cmPolygon           // 多边形
-                   );
-  //动画播放模式
-  TAnimPlayMode  = (pmForward,          // 12345 12345 12345
-                    pmBackward,         // 54321 54321 54321
-                    pmPingPong          // 12345432123454321
-                   );
-  //渲染模式
-  TDrawMode      = (dmColor,
-                    dmRotate,
-                    dmTransform
-                   );
-
-  //对齐方式
-  TAlignMode     = (amNone,             
-                    amLeftTop,          
-                    amRightTop, 
-                    amLeftBottom, 
-                    amRightBottom,
-                    amCenter,
-                    amCenterTop,
-                    amCenterBottom,
-                    amCenterLeft,
-                    amCenterRight
-                   );
-
   TSpriteManager = class;
   TCustomSpriteClass = class of TCustomSprite;
 
@@ -64,12 +36,12 @@ type
     FMargins: TBounds;
     FAlign: TAlignMode;
     procedure DoMarginsChanged(Sender: TObject);
-    procedure DoLayoutChange;
+    procedure DoLayoutChanged;
   private
     FName: string;
     FImage: TEngineImage;
     FWidth, FHeight, FZOrder, FTag, FPatternIndex: Integer;
-    FX, FY: Single;
+    FX, FY, FDrawX, FDrawY: Single;
     FBlendMode: TEngineBlendingEffect;
     FMoveable, FTruncDraw, FVisible: Boolean;
     FCollidePos: TPoint2f;
@@ -80,25 +52,29 @@ type
     FCollideMode: TCollideMode;
     FCollisioned: Boolean;
     FCanFocus, FFocused, FHitTest: Boolean;
+    FFixedLayout: Boolean;
+    FGroupName: string;
     procedure SetParent(const Value: TCustomSprite);
     procedure SetImage(const Value: TEngineImage);
     procedure SetX(const Value: Single);
     procedure SetY(const Value: Single);
     procedure SetHeight(const Value: Integer);
-    procedure SetWidth(const Value: Integer); 
+    procedure SetWidth(const Value: Integer);
     procedure SetZOrder(const Value: Integer);
     procedure SetAlign(const Value: TAlignMode);
+    procedure SetGroupName(const Value: string);
     function GetWorldX: Single;
     function GetWorldY: Single;
     function GetPatternSize: TPoint2i;
     function GetPatternCount: Integer;
-    function SpriteAtPos(const X, Y: Integer): TCustomSprite;
   private
     FZOrderAutoSort: Boolean;
     procedure Add(const ASprite: TCustomSprite);
     procedure Remove(const ASprite: TCustomSprite);
     procedure ResetDrawOrder;
     procedure SetFocus(const AFocused: Boolean);
+    function SpriteAtPos(const X, Y: Integer; const ACheckVisible,
+      ACheckHitTest: Boolean): TCustomSprite;
   private
     FOnClick, FOnDblClick, FOnMouseLeave: TNotifyEvent;
     FOnMouseDown, FOnMouseUp: TMouseEvent;
@@ -192,6 +168,10 @@ type
     property CanFocus: Boolean read FCanFocus write FCanFocus;
     // 是否可以命中
     property HitTest: Boolean read FHitTest write FHitTest;
+    // 是否固定位置(位置不根据世界坐标改变而改变, 通常用于GUI对象)
+    property FixedLayout: Boolean read FFixedLayout write FFixedLayout;
+    // 组名称
+    property GroupName: string read FGroupName write SetGroupName;
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnDblClick: TNotifyEvent read FOnDblClick write FOnDblClick;
@@ -293,11 +273,49 @@ type
     property Ended: Boolean read GetEnded;
   end;
 
-  //GUI精灵
-  TGUISprite = class(TAnimatedSprite)
+  //文本精灵
+  TTextSprite = class(TSprite)
+  private
+    FFont: TFontInstance;
+    FFontStyle: TFontCharStyle;
+    FFontRenderer: TFontInstance.TFontRenderer;
+    FFontSizeScale: Single;
+  private
+    FText: string;
+    FFontSize: Word;
+    FFontName: string;
+    FFontColor: TIntColor;
+    FTextAlign: TTextAlignMode;
+    procedure SetText(const Value: string);
+    procedure SetFontName(const Value: string);
+    procedure SetFontColor(const Value: TIntColor);
+    procedure SetFontSize(const Value: Word);
   protected
     procedure DoDraw; override;
-    procedure Resize; override;
+  public
+    constructor Create(const AManager: TSpriteManager); override;
+
+    property X: Single read FX;
+    property Y: Single read FY;
+  published
+    property Text: string read FText write SetText;
+    property FontName: string read FFontName write SetFontName;
+    property FontSize: Word read FFontSize write SetFontSize;
+    property FontColor: TIntColor read FFontColor write SetFontColor;
+    property TextAlign: TTextAlignMode read FTextAlign write FTextAlign;
+    property Name;
+    property Align;
+    property Margins;
+    property ZOrder;
+  end;
+
+  //GUI精灵
+  TGUISprite = class(TAnimatedSprite)
+  private
+    FText: TTextSprite;
+    procedure SetText(const Value: TTextSprite);
+  protected
+    procedure DoDraw; override;
   protected
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Single); override;
@@ -314,26 +332,47 @@ type
     property X: Single read FX;
     property Y: Single read FY;
   published
+    property Name;
+    property Image;
     property Align;
     property Margins;
+    property HitTest;
+    property ZOrder;
+    property Text: TTextSprite read FText write SetText;
   end;
 
   //精灵管理器
   TSpriteManager = class
   private
     FCanvas: TEngineCanvas;
+    FFontMap: TObjectDictionary<string, TFontInstance>;
     FViewPort: TPoint2i;
     FAllCount, FDrawCount: Integer;
     FSpriteList: TObjectList<TCustomSprite>;
     FDeadList: TList<TCustomSprite>;
     FSelectedList: TList<TCustomSprite>;
+    FGroupMap: TObjectDictionary<string, TList<TCustomSprite>>;
     FWorldX, FWorldY: Single;
     FTouchPoint: TPoint2i;
     FZOrderAutoSort: Boolean;
+    FOnPrint: TNotifyInfoEvent;
+    FPadding: TIntRect;
+    FDefaultFont: TFontInstance;
+    function GetSprite(const Name: string): TCustomSprite;
+    function GetScale: Single;
+    function GetDefaultFont: TFontInstance;
+    procedure SetPadding(const Value: TIntRect);
+  private
     procedure Add(const ASprite: TCustomSprite);
     procedure Remove(const ASprite: TCustomSprite);
-    function GetSprite(const Name: string): TCustomSprite;
-    function SpriteAtPos(const X, Y: Single): TCustomSprite;
+    function SpriteAtPos(const X, Y: Single; const ACheckVisible,
+      ACheckHitTest: Boolean): TCustomSprite;
+    // 加入分组
+    procedure Grouping(const AGroupName: string; const ASprite: TCustomSprite);
+    // 移出分组
+    procedure OutGroup(const AGroupName: string; const ASprite: TCustomSprite);
+    // 解散分组
+    procedure BreakGroup(const AGroupName: string);
   private
     FOnFormMouseDown, FOnFormMouseUp: TMouseEvent;
     FOnFormMouseMove: TMouseMoveEvent;
@@ -365,18 +404,28 @@ type
     function SpriteDistance(const S1, S2: TCustomSprite): Real;
     // 重置大小
     procedure Resize(const ANewWidth, ANewHeight: Integer);
+    // 释放整个分组中的所有Sprite
+    procedure DeadGroup(const AGroupName: string);
   public
     // 世界坐标
     property WorldX: Single read FWorldX write FWorldX ;
     property WorldY: Single read FWorldY write FWorldY;
     // 画布
     property Canvas: TEngineCanvas read FCanvas write FCanvas;
+    // 信息打印
+    property OnPrint: TNotifyInfoEvent read FOnPrint write FOnPrint;
     // 可视区域大小
     property ViewPort: TPoint2i read FViewPort write FViewPort;
     // 点击屏幕的位置
     property TouchPoint: TPoint2i read FTouchPoint write FTouchPoint;
-    //
+    // 根据名称获取Sprite
     property Sprite[const Name: string]: TCustomSprite read GetSprite;
+    // 边缘区域
+    property Padding: TIntRect read FPadding write SetPadding;
+    // 默认字体对象
+    property DefaultFont: TFontInstance read GetDefaultFont;
+    // 屏幕比例
+    property Scale: Single read GetScale;
   end;
 
 implementation
@@ -404,6 +453,8 @@ begin
   FImage:= nil;
   FX:= 0;
   FY:= 0;
+  FDrawX:= 0;
+  FDrawY:= 0;
   FZOrder:= 0;
   if Self.FZOrder = 0 then Self.FZOrder:= 1;
   FWidth:= 8;
@@ -420,6 +471,8 @@ begin
   FFocused:= False;
   FHitTest:= True;
   FAlign:= TAlignMode.amNone;
+  FFixedLayout:= False;
+  FGroupName:= '';
   //
   AManager.Add(Self);
 end;
@@ -445,15 +498,17 @@ end;
 procedure TCustomSprite.SetParent(const Value: TCustomSprite);
 begin
   if FParent = Value then Exit;
-  if Assigned(FParent) then FParent.Remove(Self);
+  if Assigned(FParent) then
+    FParent.Remove(Self);
   FParent:= Value;
   FParent.Add(Self);
   FParent.ResetDrawOrder;
+  DoLayoutChanged;
 end;
 
 procedure TCustomSprite.SetWidth(const Value: Integer);
 begin
-  FWidth:= Round(Value * TClientUtils.ScreenScale);
+  FWidth:= Round(Value * FManager.Scale);
 end;
 
 procedure TCustomSprite.SetAlign(const Value: TAlignMode);
@@ -461,7 +516,7 @@ begin
   if FAlign <> Value then  
   begin
     FAlign:= Value;
-    DoLayoutChange;
+    DoLayoutChanged;
   end;
 end;
 
@@ -471,9 +526,23 @@ begin
   if FCanFocus then FFocused:= AFocused;
 end;
 
+procedure TCustomSprite.SetGroupName(const Value: string);
+begin
+  if FGroupName <> Value then
+  begin
+    if Value = '' then
+      FManager.OutGroup(FGroupName, Self)
+    else
+    begin
+      FGroupName:= Value;
+      FManager.Grouping(FGroupName, Self);
+    end;
+  end;
+end;
+
 procedure TCustomSprite.SetHeight(const Value: Integer);
 begin
-  FHeight:= Round(Value * TClientUtils.ScreenScale);
+  FHeight:= Round(Value * FManager.Scale);
 end;
 
 procedure TCustomSprite.SetImage(const Value: TEngineImage);
@@ -483,12 +552,20 @@ end;
 
 procedure TCustomSprite.SetX(const Value: Single);
 begin
-  FX:= Value * TClientUtils.ScreenScale;
+  FX:= Value * FManager.Scale;
+  if Assigned(FParent) then
+    FDrawX:= FParent.FDrawX + FX
+  else
+    FDrawX:= FX;
 end;
 
 procedure TCustomSprite.SetY(const Value: Single);
 begin        
-  FY:= Value * TClientUtils.ScreenScale;
+  FY:= Value * FManager.Scale;
+  if Assigned(FParent) then
+    FDrawY:= FParent.FDrawY + FY
+  else
+    FDrawY:= FY;
 end;
 
 procedure TCustomSprite.SetZOrder(const Value: Integer);
@@ -503,17 +580,20 @@ begin
   end;
 end;
 
-function TCustomSprite.SpriteAtPos(const X, Y: Integer): TCustomSprite;
+function TCustomSprite.SpriteAtPos(const X, Y: Integer; const ACheckVisible,
+  ACheckHitTest: Boolean): TCustomSprite;
 var
   I: Integer;
 begin
   Result:= nil;
+  if ACheckVisible and not Self.Visible then Exit;
+  if ACheckHitTest and not Self.HitTest then Exit;
   if Self.BoundsRect.Contains(Point2i(X, Y)) then
     Exit(Self)
   else
-    for I:= 0 to FChildList.Count -1 do
+    for I:= FChildList.Count -1 downto 0 do
     begin
-      Result:= FChildList[I].SpriteAtPos(X, Y);
+      Result:= FChildList[I].SpriteAtPos(X, Y, ACheckVisible, ACheckHitTest);
       if Result <> nil then
         Break;
     end;
@@ -533,7 +613,12 @@ begin
 end;
 
 procedure TCustomSprite.Resize;
+var
+  I: Integer;
 begin
+  DoLayoutChanged;
+  for I:= 0 to FChildList.Count -1 do
+    FChildList[I].Resize;
 end;
 
 procedure TCustomSprite.Render;
@@ -542,10 +627,10 @@ var
 begin
   if FVisible then
   begin
-    if (FX > FManager.WorldX - FWidth) and
-       (FY > FManager.WorldY - FHeight) and
-       (FX < FManager.WorldX + FManager.ViewPort.X) and
-       (FY < FManager.WorldY + FManager.ViewPort.Y) then
+    if (FDrawX > ifthen(FFixedLayout,0,FManager.WorldX) - FWidth) and
+       (FDrawY > ifthen(FFixedLayout,0,FManager.WorldY) - FHeight) and
+       (FDrawX < ifthen(FFixedLayout,0,FManager.WorldX) + FManager.ViewPort.X) and
+       (FDrawY < ifthen(FFixedLayout,0,FManager.WorldY) + FManager.ViewPort.Y) then
     begin
       DoDraw;
       Inc(FManager.FDrawCount);
@@ -562,8 +647,8 @@ var
 begin
   if FVisible and Assigned(FImage) then
   begin
-    LTargetQuad:= Quad(FX - FManager.WorldX,
-                       FY - FManager.WorldY,
+    LTargetQuad:= Quad(FDrawX - ifthen(FFixedLayout,0,FManager.WorldX),
+                       FDrawY - ifthen(FFixedLayout,0,FManager.WorldY),
                        FWidth, FHeight);
     LTargetQuad.Trunc(FTruncDraw);
     FManager.Canvas.DrawImage(FImage, LTargetQuad);
@@ -584,7 +669,8 @@ end;
 
 function TCustomSprite.GetBoundsRect: TIntRect;
 begin
-  Result:= IntRectBDS(Round(FX), Round(FY), Round(FX + FWidth), Round(FY + FHeight));
+  Result:= IntRectBDS(Round(FDrawX), Round(FDrawY),
+    Round(FDrawX + FWidth), Round(FDrawY + FHeight));
 end;
 
 function TCustomSprite.GetPatternCount: Integer;
@@ -597,18 +683,12 @@ end;
 
 function TCustomSprite.GetWorldX: Single;
 begin
-  if Assigned(FParent) then
-    Result:= FParent.WorldX + X
-  else
-    Result:= FManager.WorldX + X;
+  Result:= FManager.WorldX + FDrawX;
 end;
 
 function TCustomSprite.GetWorldY: Single;
 begin
-  if Assigned(FParent) then
-    Result:= FParent.WorldY + Y
-  else
-    Result:= FManager.WorldY + Y;
+  Result:= FManager.WorldY + FDrawY;
 end;
 
 procedure TCustomSprite.DoCollision(const ASprite: TCustomSprite);
@@ -617,12 +697,23 @@ end;
 
 procedure TCustomSprite.Add(const ASprite: TCustomSprite);
 begin
-  FChildList.Add(ASprite);
+  if Assigned(ASprite) and not FChildList.Contains(ASprite) then
+  begin
+    ASprite.FDrawX:= Self.FDrawX + ASprite.X;
+    ASprite.FDrawY:= Self.FDrawY + ASprite.Y;
+    FChildList.Add(ASprite);
+  end;
 end;
 
 procedure TCustomSprite.Remove(const ASprite: TCustomSprite);
 begin
-  FChildList.Remove(ASprite);
+  if Assigned(ASprite) and FChildList.Contains(ASprite) then
+  begin
+    ASprite.FDrawX:= ASprite.X;
+    ASprite.FDrawY:= ASprite.Y;
+    ASprite.FParent:= nil;
+    FChildList.Remove(ASprite);
+  end;
 end;
 
 procedure TCustomSprite.Collision(const AOther: TCustomSprite);
@@ -705,8 +796,8 @@ begin
   if Assigned(FOnMouseUp) then
     FOnMouseUp(Self, Button, Shift, X, Y);
   //
-  if BoundsRect.Contains(Point2i(Round(X*TClientUtils.ScreenScale), 
-                                 Round(Y*TClientUtils.ScreenScale))) and 
+  if BoundsRect.Contains(Point2i(Round(X*FManager.Scale),
+                                 Round(Y*FManager.Scale))) and
      Assigned(FOnClick) then FOnClick(Self);
 end;
 
@@ -731,64 +822,75 @@ end;
 
 procedure TCustomSprite.DoMarginsChanged(Sender: TObject);
 begin
-  if FAlign <> TAlignMode.amNone then
-    DoLayoutChange;
+  DoLayoutChanged;
 end;
 
-procedure TCustomSprite.DoLayoutChange;
+procedure TCustomSprite.DoLayoutChanged;
 var
   LMargins: TFloatRect;
+  LContainerSize: TPoint2i;
 begin
-  LMargins.Left  := FMargins.Left   * TClientUtils.ScreenScale;
-  LMargins.Top   := FMargins.Top    * TClientUtils.ScreenScale;
-  LMargins.Right := FMargins.Right  * TClientUtils.ScreenScale;
-  LMargins.Bottom:= FMargins.Bottom * TClientUtils.ScreenScale;
+  LMargins.Left  := FMargins.Left   * FManager.Scale;
+  LMargins.Top   := FMargins.Top    * FManager.Scale;
+  LMargins.Right := FMargins.Right  * FManager.Scale;
+  LMargins.Bottom:= FMargins.Bottom * FManager.Scale;
+  if Assigned(FParent) then
+    LContainerSize:= Point2i(FParent.Width, FParent.Height)
+  else
+    LContainerSize:= FManager.ViewPort;
+  //
   case FAlign of
-    amLeftTop: 
-      begin
-        FX:= 0 + LMargins.Left;
-        FY:= 0 + LMargins.Top;
-      end;
     amRightTop:
       begin
-        FX:= FManager.ViewPort.X - FWidth - LMargins.Right;
-        FY:= 0 + LMargins.Top;
+        FDrawX:= LContainerSize.X - FWidth - LMargins.Right - FManager.Padding.Right;
+        FDrawY:= 0 + LMargins.Top + FManager.Padding.Top;
       end;
     amLeftBottom:
       begin
-        FX:= 0 + LMargins.Left;
-        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
+        FDrawX:= 0 + LMargins.Left + FManager.Padding.Left;
+        FDrawY:= LContainerSize.Y - FHeight - LMargins.Bottom - FManager.Padding.Bottom;
       end;
     amRightBottom:
       begin
-        FX:= FManager.ViewPort.X - FWidth  - LMargins.Right;
-        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
+        FDrawX:= LContainerSize.X - FWidth  - LMargins.Right - FManager.Padding.Right;
+        FDrawY:= LContainerSize.Y - FHeight - LMargins.Bottom - FManager.Padding.Bottom;
       end;
     amCenter:
       begin
-        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
-        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+        FDrawX:= LContainerSize.X / 2 - FWidth / 2;
+        FDrawY:= LContainerSize.Y / 2 - FHeight / 2;
       end;
     amCenterTop:
       begin
-        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
-        FY:= 0 + LMargins.Top;
+        FDrawX:= LContainerSize.X / 2 - FWidth / 2;
+        FDrawY:= 0 + LMargins.Top + FManager.Padding.Top;
       end;
     amCenterBottom:
       begin
-        FX:= FManager.ViewPort.X / 2 - FWidth / 2;
-        FY:= FManager.ViewPort.Y - FHeight - LMargins.Bottom;
+        FDrawX:= LContainerSize.X / 2 - FWidth / 2;
+        FDrawY:= LContainerSize.Y - FHeight - LMargins.Bottom - FManager.Padding.Bottom;
       end;
     amCenterLeft:
       begin
-        FX:= 0 + LMargins.Left;
-        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+        FDrawX:= 0 + LMargins.Left + FManager.Padding.Left;
+        FDrawY:= LContainerSize.Y / 2 - FHeight / 2;
       end;
     amCenterRight:
       begin
-        FX:= FManager.ViewPort.X - FWidth - LMargins.Right;
-        FY:= FManager.ViewPort.Y / 2 - FHeight / 2;
+        FDrawX:= LContainerSize.X - FWidth - LMargins.Right - FManager.Padding.Right;
+        FDrawY:= LContainerSize.Y / 2 - FHeight / 2;
       end;
+    else
+      begin
+        FDrawX:= 0 + LMargins.Left + FManager.Padding.Left;
+        FDrawY:= 0 + LMargins.Top  + FManager.Padding.Top;
+      end;
+  end;
+  //
+  if Assigned(FParent) then
+  begin
+    FDrawX:= FParent.FDrawX + FDrawX;
+    FDrawY:= FParent.FDrawY + FDrawY;
   end;
 end;
 
@@ -822,10 +924,10 @@ var
 begin
   if FVisible then
   begin
-    if (FX + FOffset.X > FManager.WorldX - FWidth) and
-       (FY + FOffset.Y > FManager.WorldY - FHeight) and
-       (FX + FOffset.X < FManager.WorldX + FManager.ViewPort.X) and
-       (FY + FOffset.Y < FManager.WorldY + FManager.ViewPort.Y) then
+    if (FDrawX + FOffset.X > ifthen(FFixedLayout,0,FManager.WorldX) - FWidth) and
+       (FDrawY + FOffset.Y > ifthen(FFixedLayout,0,FManager.WorldY) - FHeight) and
+       (FDrawX + FOffset.X < ifthen(FFixedLayout,0,FManager.WorldX) + FManager.ViewPort.X) and
+       (FDrawY + FOffset.Y < ifthen(FFixedLayout,0,FManager.WorldY) + FManager.ViewPort.Y) then
     begin
       DoDraw;
       Inc(FManager.FDrawCount);
@@ -844,31 +946,39 @@ begin
   if not Assigned(FImage) then Exit;
   if not Assigned(FManager) then Exit;
   //
-  LX:= FX + FOffset.X - FManager.WorldX;
-  LY:= FY + FOffset.Y - FManager.WorldY;
+  LX:= FDrawX + FOffset.X - ifthen(FFixedLayout,0,FManager.WorldX);
+  LY:= FDrawY + FOffset.Y - ifthen(FFixedLayout,0,FManager.WorldY);
   case FDrawMode of
     TDrawMode.dmColor:
       begin
-        FManager.Canvas.DrawImageRegion(FImage, FPatternIndex, LX, LY,
-          FColor.ToInt, FMirror, FFlip, FBlendMode);
+        FManager.Canvas.DrawImage(FImage, FPatternIndex,
+          Quad(LX, LY, FWidth, FHeight), FColor.ToInt, FMirror, FFlip, 0, 1, FBlendMode);
       end;
     TDrawMode.dmRotate:
       begin
-        FManager.Canvas.DrawImageRegion(FImage, FPatternIndex, LX, LY,
-          FColor.ToInt, FMirror, FFlip, FAngle, FScale, FBlendMode);
+        FManager.Canvas.DrawImage(FImage, FPatternIndex,
+          Quad(LX, LY, FWidth, FHeight), FColor.ToInt, FMirror, FFlip, FAngle, FScale.X, FBlendMode);
       end;
     TDrawMode.dmTransform:
       begin
-        LTargetQuad.Values[0].X:= Trunc(FTransformQuad.Values[0].X + FOffset.X) - Trunc(FManager.WorldX);
-        LTargetQuad.Values[0].Y:= Trunc(FTransformQuad.Values[0].Y + FOffset.Y) - Trunc(FManager.WorldY);
-        LTargetQuad.Values[1].X:= Trunc(FTransformQuad.Values[1].X + FOffset.X) - Trunc(FManager.WorldX);
-        LTargetQuad.Values[1].Y:= Trunc(FTransformQuad.Values[1].Y + FOffset.Y) - Trunc(FManager.WorldY);
-        LTargetQuad.Values[2].X:= Trunc(FTransformQuad.Values[2].X + FOffset.X) - Trunc(FManager.WorldX);
-        LTargetQuad.Values[2].Y:= Trunc(FTransformQuad.Values[2].Y + FOffset.Y) - Trunc(FManager.WorldY);
-        LTargetQuad.Values[3].X:= Trunc(FTransformQuad.Values[3].X + FOffset.X) - Trunc(FManager.WorldX);
-        LTargetQuad.Values[3].Y:= Trunc(FTransformQuad.Values[3].Y + FOffset.Y) - Trunc(FManager.WorldY);
-        FManager.Canvas.DrawImageRegion(FImage, FPatternIndex, LTargetQuad,
-          FColor.ToInt, FMirror, FFlip, FAngle, FScale, FBlendMode);
+        LTargetQuad.Values[0].X:= Trunc(FTransformQuad.Values[0].X + FOffset.X) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldX));
+        LTargetQuad.Values[0].Y:= Trunc(FTransformQuad.Values[0].Y + FOffset.Y) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldY));
+        LTargetQuad.Values[1].X:= Trunc(FTransformQuad.Values[1].X + FOffset.X) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldX));
+        LTargetQuad.Values[1].Y:= Trunc(FTransformQuad.Values[1].Y + FOffset.Y) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldY));
+        LTargetQuad.Values[2].X:= Trunc(FTransformQuad.Values[2].X + FOffset.X) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldX));
+        LTargetQuad.Values[2].Y:= Trunc(FTransformQuad.Values[2].Y + FOffset.Y) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldY));
+        LTargetQuad.Values[3].X:= Trunc(FTransformQuad.Values[3].X + FOffset.X) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldX));
+        LTargetQuad.Values[3].Y:= Trunc(FTransformQuad.Values[3].Y + FOffset.Y) -
+          Trunc(ifthen(FFixedLayout,0,FManager.WorldY));
+        FManager.Canvas.DrawImage(FImage, FPatternIndex, LTargetQuad,
+          FColor.ToInt, FMirror, FFlip, FAngle, FScale.X, FBlendMode);
       end;
   end;
 end;
@@ -1058,13 +1168,19 @@ end;
 constructor TGUISprite.Create(const AManager: TSpriteManager);
 begin
   inherited;
+  {$IFDEF DEBUG}
   FCanFocus:= True;
+  {$ELSE}
+  FCanFocus:= False;
+  {$ENDIF}
+  FFixedLayout:= True;
+  FText:= nil;
 end;
 
 procedure TGUISprite.DoDraw;
 begin
   inherited;
-  if FFocused then
+  if FCanFocus and FFocused then
     FManager.Canvas.FrameRect(FloatRect(Self.BoundsRect.Left,
       Self.BoundsRect.Top, Self.BoundsRect.Width, Self.BoundsRect.Height), $FFFF0000);
 end;
@@ -1112,13 +1228,88 @@ begin
 
 end;
 
-procedure TGUISprite.Resize;
-var
-  I: Integer;
+procedure TGUISprite.SetText(const Value: TTextSprite);
 begin
-  Self.DoLayoutChange;
-  for I:= 0 to FChildList.Count -1 do
-    FChildList[I].Resize;
+  FText:= Value;
+  FText.Parent:= Self;
+  FText.Align:= TAlignMode.amClient;
+end;
+
+{$ENDREGION}
+
+{$REGION 'TTextSprite'}
+
+{ TTextSprite }
+
+constructor TTextSprite.Create(const AManager: TSpriteManager);
+begin
+  inherited;
+  {$IFDEF DEBUG}
+  FCanFocus:= True;
+  {$ELSE}
+  FCanFocus:= False;
+  {$ENDIF}
+  FFixedLayout:= True;
+  FHitTest:= False;
+  //
+  FFont:= FManager.DefaultFont;
+  FFontColor:= IntColorBlack;
+  FFontSize := TFontTypes.OptimumFontSize;
+  FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
+  FFontStyle:= TFontCharStyle.Default(FFontColor);
+  FTextAlign:= TTextAlignMode.tamLeft;
+  FFontRenderer.Reset;
+end;
+
+procedure TTextSprite.DoDraw;
+begin
+  if not Assigned(FFont) then
+    Exit;
+  //
+  if FFontRenderer.Chars.Count = 0 then
+    FFontRenderer:= FFont.Compile(Point2f(Self.FDrawX, Self.FDrawY), FText,
+      FFontSize, FFontStyle, IntRect(0, 0, FWidth, FHeight), FWidth <> 0, -1, FTextAlign);
+  //
+  FFont.DrawText(FFontRenderer, FFontSizeScale);
+end;
+
+procedure TTextSprite.SetText(const Value: string);
+begin
+  if FText <> Value then
+  begin
+    FText:= Value;
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontColor(const Value: TIntColor);
+begin
+  if FFontColor <> Value then
+  begin
+    FFontColor:= Value;
+    FFontStyle.Color:= FFontColor;
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontName(const Value: string);
+begin
+  if FFontName <> Value then
+  begin
+    FFontName:= Value;
+    FFont:= AssetsManager.RequireFont(FFontName);
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontSize(const Value: Word);
+begin
+  if FFontSize <> Value then
+  begin
+    FFontSize:= Value;
+    FFontRenderer.Reset;
+    FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
+  end;
 end;
 
 {$ENDREGION}
@@ -1127,14 +1318,15 @@ end;
 
 { TSpriteManager }
 
-function TSpriteManager.SpriteAtPos(const X, Y: Single): TCustomSprite;
+function TSpriteManager.SpriteAtPos(const X, Y: Single; const ACheckVisible,
+  ACheckHitTest: Boolean): TCustomSprite;
 var
   I: Integer;
 begin
   Result:= nil;
-  for I:= 0 to FSpriteList.Count -1 do
+  for I:= FSpriteList.Count -1 downto 0 do
   begin
-    Result:= FSpriteList[I].SpriteAtPos(Round(X), Round(Y));
+    Result:= FSpriteList[I].SpriteAtPos(Round(X), Round(Y), ACheckHitTest, ACheckVisible);
     if Result <> nil then
       Break;
   end;
@@ -1148,9 +1340,12 @@ end;
 constructor TSpriteManager.Create(const AForm: TForm);
 begin
   inherited Create;
+  FFontMap:= TObjectDictionary<string, TFontInstance>.Create([doOwnsValues]);
   FSpriteList:= TObjectList<TCustomSprite>.Create;
   FDeadList:= TList<TCustomSprite>.Create;
   FSelectedList:= TList<TCustomSprite>.Create;
+  FGroupMap:= TObjectDictionary<string, TList<TCustomSprite>>.Create([doOwnsValues]);
+  //
   FViewPort:= Point2i(960, 480);
   FWorldX:= 0;
   FWorldY:= 0;
@@ -1158,15 +1353,19 @@ begin
   FZOrderAutoSort:= True;
   FActiveSprite:= nil;
   FMouseEnterSprite:= nil;
+  FPadding:= IntRectBDS(0, 0, 0, 0);
+  FDefaultFont:= nil;
   //
   AcquireEvents(AForm);
 end;
 
 destructor TSpriteManager.Destroy;
 begin
-  FSelectedList.Free;
-  FDeadList.Free;
-  FSpriteList.Free;
+  FreeAndNil(FFontMap);
+  FreeAndNil(FSelectedList);
+  FreeAndNil(FDeadList);
+  FreeAndNil(FSpriteList);
+  FreeAndNil(FGroupMap);
   inherited;
 end;
 
@@ -1181,6 +1380,18 @@ begin
   Self.ResetDrawOrder;
 end;
 
+function TSpriteManager.GetDefaultFont: TFontInstance;
+begin
+  if not Assigned(FDefaultFont) then
+    FDefaultFont:= AssetsManager.RequireFont(TFontTypes.DefaultFontName);
+  Result:= FDefaultFont;
+end;
+
+function TSpriteManager.GetScale: Single;
+begin
+  Result:= TClientUtils.ScreenScale;
+end;
+
 function TSpriteManager.GetSprite(const Name: string): TCustomSprite;
 var
   I: Integer;
@@ -1189,6 +1400,18 @@ begin
   for I:= 0 to FSpriteList.Count -1 do
     if FSpriteList.Items[I].Name = Name then
       Exit(FSpriteList.Items[I]);
+end;
+
+procedure TSpriteManager.SetPadding(const Value: TIntRect);
+var
+  I: Integer;
+begin
+  if FPadding <> Value then
+  begin
+    FPadding:= Value;
+    for I:= 0 to FSpriteList.Count -1 do
+      FSpriteList.Items[I].DoLayoutChanged;
+  end;
 end;
 
 procedure TSpriteManager.Add(const ASprite: TCustomSprite);
@@ -1255,8 +1478,9 @@ procedure TSpriteManager.DoMouseDown(Sender: TObject; Button: TMouseButton;
 var
   LSprite: TCustomSprite;
 begin
-  LSprite:= Self.SpriteAtPos(X*TClientUtils.ScreenScale, Y*TClientUtils.ScreenScale);
-  if Assigned(LSprite) and LSprite.Visible and LSprite.HitTest then
+  LSprite:= Self.SpriteAtPos(X*Self.Scale,
+    Y*Self.Scale, True, True);
+  if Assigned(LSprite) then
   begin
     if Assigned(FActiveSprite) then
       FActiveSprite.SetFocus(False);
@@ -1281,8 +1505,8 @@ procedure TSpriteManager.DoMouseMove(Sender: TObject; Shift: TShiftState; X,
 var
   LSprite: TCustomSprite;
 begin
-  LSprite:= Self.SpriteAtPos(X*TClientUtils.ScreenScale, Y*TClientUtils.ScreenScale);
-  if Assigned(LSprite) and LSprite.Visible and LSprite.HitTest then
+  LSprite:= Self.SpriteAtPos(X*Self.Scale, Y*Self.Scale, True, True);
+  if Assigned(LSprite) then
   begin
     LSprite.MouseMove(Shift, X, Y);
     if FMouseEnterSprite <> LSprite then
@@ -1335,6 +1559,75 @@ begin
   for I:= 0 to FDeadList.Count -1 do
     Self.Remove(FDeadList.Items[I]);
   FDeadList.Clear;
+end;
+
+procedure TSpriteManager.Grouping(const AGroupName: string;
+  const ASprite: TCustomSprite);
+var
+  LGroup: TList<TCustomSprite>;
+begin
+  if AGroupName = '' then
+    Exit;
+  if not Assigned(ASprite) then
+    Exit;
+  //
+  if not FGroupMap.TryGetValue(AGroupName, LGroup) then
+  begin
+    LGroup:= TList<TCustomSprite>.Create;
+    FGroupMap.Add(AGroupName, LGroup);
+  end;
+  if not LGroup.Contains(ASprite) then
+    LGroup.Add(ASprite);
+end;
+
+procedure TSpriteManager.OutGroup(const AGroupName: string;
+  const ASprite: TCustomSprite);
+var
+  LGroup: TList<TCustomSprite>;
+begin
+  if AGroupName = '' then
+    Exit;
+  if not Assigned(ASprite) then
+    Exit;
+  if not FGroupMap.TryGetValue(AGroupName, LGroup) then
+    Exit;
+  //
+  ASprite.FGroupName:= '';
+  LGroup.Remove(ASprite);
+  if LGroup.Count = 0 then
+    FGroupMap.Remove(AGroupName);
+end;
+
+procedure TSpriteManager.BreakGroup(const AGroupName: string);
+var
+  LGroup: TList<TCustomSprite>;
+  I: Integer;
+begin
+  if AGroupName = '' then
+    Exit;
+  if not FGroupMap.TryGetValue(AGroupName, LGroup) then
+    Exit;
+  //
+  for I:= 0 to LGroup.Count -1 do
+    LGroup.Items[I].FGroupName:= '';
+  LGroup.Clear;
+  FGroupMap.Remove(AGroupName);
+end;
+
+procedure TSpriteManager.DeadGroup(const AGroupName: string);
+var
+  LGroup: TList<TCustomSprite>;
+  I: Integer;
+begin
+  if AGroupName = '' then
+    Exit;
+  if AGroupName = '' then
+    Exit;
+  if not FGroupMap.TryGetValue(AGroupName, LGroup) then
+    Exit;
+  //
+  for I:= 0 to LGroup.Count -1 do
+    LGroup.Items[I].Dead;
 end;
 
 {$ENDREGION}

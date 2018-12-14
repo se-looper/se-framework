@@ -7,12 +7,15 @@ local MSGCODE = {
 	Common_Dialog_OnClickYes      = 1001,
 	Common_Dialog_OnClickNo       = 1002,
 
-	Start_OnClickShowLogin        = 100001,
-	Start_OnClickShowRank         = 100002,
+	Start_OnClickChangeRole       = 10001,
+	Start_OnClickStart            = 10002,
+		
+	Login_OnClickClose            = 10100,
+	Login_OnClickLogin            = 10101,
+	Login_OnClickRegister         = 10102,
 	
-	Rank_OnClose                  = 100101,
-	
-	Login_OnLogin                 = 100201,
+	Register_OnClickClose         = 10200,
+	Register_OnClickRegister      = 10201,
 }
 
 return MSGCODE;

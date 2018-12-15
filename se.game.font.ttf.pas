@@ -93,7 +93,7 @@ type
   public
     function HasGlyph(const AID: Cardinal): Boolean;
     function ScaleForPixelHeight(const AHeight: Single): Single;
-    function GetCodepointBitmap(ScaleX, ScaleY: Single; const codepoint: Integer;
+    function GetCodepointBitmap(ScaleX, ScaleY: Single; const codepoint, glyphindex: Integer;
       const ATexture: TEngineTexture; var xoff, yoff: Integer): Boolean;
   public
     procedure LoadFromStream(const ASource: TFileStream); override;
@@ -440,118 +440,119 @@ begin
 
   if (Length(FScanline) <= resultTexture.Width) then
     SetLength(FScanline, Succ(resultTexture.Width));
-
-  while (j < resultTexture.height) do
-  begin
-    for iii := 0 to resultTexture.Width do
-      FScanline[iii] := 0;
-
-    for s := 0 to vsubsample - 1 do
+  //
+  resultTexture.Lock(pixels);
+  try
+    while (j < resultTexture.height) do
     begin
-      // find center of pixel for this scanline
-      scan_y := y + 0.5;
+      for iii := 0 to resultTexture.Width do
+        FScanline[iii] := 0;
 
-      // update all active edges;
-      // remove all active edges that terminate before the center of this scanline
-      Temp := active;
-      Prev := nil;
-      while Assigned(Temp) do
+      for s := 0 to vsubsample - 1 do
       begin
-        if (Temp.ey <= scan_y) then
-        begin
-          // delete from list
-          if Assigned(Prev) then
-            Prev.next := Temp.next
-          else
-            active := Temp.next;
+        // find center of pixel for this scanline
+        scan_y := y + 0.5;
 
-          z := Temp;
-          freeandnil(z);
-
-          Temp := Temp.next;
-        end
-        else
-        begin
-          Inc(Temp.x, Temp.dx); // advance to position for current scanline
-
-          Prev := Temp;
-          Temp := Temp.next; // advance through list
-        end;
-      end;
-
-      // resort the list if needed
-      repeat
-        changed := False;
+        // update all active edges;
+        // remove all active edges that terminate before the center of this scanline
         Temp := active;
-        while (Assigned(Temp)) and (Assigned(Temp.next)) do
+        Prev := nil;
+        while Assigned(Temp) do
         begin
-          if Temp.x > Temp.next.x then
+          if (Temp.ey <= scan_y) then
           begin
-            t := Temp;
-            q := t.next;
+            // delete from list
+            if Assigned(Prev) then
+              Prev.next := Temp.next
+            else
+              active := Temp.next;
 
-            t.next := q.next;
-            q.next := t;
-            Temp := q;
+            z := Temp;
+            freeandnil(z);
 
-            changed := True;
-          end;
-
-          Temp := Temp.next;
-        end;
-
-      until (not changed);
-
-      // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
-      while (e.Get(eIndex).y0 <= scan_y) do
-      begin
-        if (e.Get(eIndex).y1 > scan_y) then
-        begin
-          z := new_active(e.Get(eIndex), off_x, scan_y);
-          // find insertion point
-          if active = nil then
-            active := z
-          else if (z.x < active.x) then // insert at front
-          begin
-            z.next := active;
-            active := z;
+            Temp := Temp.next;
           end
           else
           begin
-            // find thing to insert AFTER
-            p := active;
-            while (Assigned(p.next)) and (p.next.x < z.x) do
-              p := p.next;
+            Inc(Temp.x, Temp.dx); // advance to position for current scanline
 
-            // at this point, p->next->x is NOT < z->x
-            z.next := p.next;
-            p.next := z;
+            Prev := Temp;
+            Temp := Temp.next; // advance through list
           end;
         end;
 
-        Inc(eIndex);
+        // resort the list if needed
+        repeat
+          changed := False;
+          Temp := active;
+          while (Assigned(Temp)) and (Assigned(Temp.next)) do
+          begin
+            if Temp.x > Temp.next.x then
+            begin
+              t := Temp;
+              q := t.next;
+
+              t.next := q.next;
+              q.next := t;
+              Temp := q;
+
+              changed := True;
+            end;
+
+            Temp := Temp.next;
+          end;
+
+        until (not changed);
+
+        // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
+        while (e.Get(eIndex).y0 <= scan_y) do
+        begin
+          if (e.Get(eIndex).y1 > scan_y) then
+          begin
+            z := new_active(e.Get(eIndex), off_x, scan_y);
+            // find insertion point
+            if active = nil then
+              active := z
+            else if (z.x < active.x) then // insert at front
+            begin
+              z.next := active;
+              active := z;
+            end
+            else
+            begin
+              // find thing to insert AFTER
+              p := active;
+              while (Assigned(p.next)) and (p.next.x < z.x) do
+                p := p.next;
+
+              // at this point, p->next->x is NOT < z->x
+              z.next := p.next;
+              p.next := z;
+            end;
+          end;
+
+          Inc(eIndex);
+        end;
+
+        // now process all active edges in XOR fashion
+        if Assigned(active) then
+          stbtt__fill_active_edges(@FScanline[0], resultTexture.Width, active,
+            max_weight);
+
+        Inc(y);
       end;
 
-      // now process all active edges in XOR fashion
-      if Assigned(active) then
-        stbtt__fill_active_edges(@FScanline[0], resultTexture.Width, active,
-          max_weight);
-
-      Inc(y);
-    end;
-
-    resultTexture.Lock(pixels);
-    try
       for iii:= 0 to Pred(resultTexture.Width) do
         if (FScanline[iii] > 0) then // OPTIMIZATION?
         begin
           TIntColorRec(Color).Alpha:= FScanline[iii];
           pixels.Pixels[iii, j]:= Color;
         end;
-    finally
-      resultTexture.Unlock;
+
+      Inc(j);
     end;
-    Inc(j);
+  finally
+    resultTexture.Unlock;
   end;
 
   while Assigned(active) do
@@ -1447,12 +1448,11 @@ begin
 end;
 
 function TTTFFont.GetCodepointBitmap(ScaleX, ScaleY: Single;
-  const codepoint: Integer; const ATexture: TEngineTexture;
+  const codepoint, glyphindex: Integer; const ATexture: TEngineTexture;
   var xoff, yoff: Integer): Boolean;
 begin
   if FReady then
-    Result:= stbtt_GetGlyphBitmap(ScaleX, ScaleY, 0, 0,
-      stbtt_FindGlyphIndex(codepoint), ATexture, xoff, yoff)
+    Result:= stbtt_GetGlyphBitmap(ScaleX, ScaleY, 0, 0, glyphindex, ATexture, xoff, yoff)
   else
     Result:= False;
 end;
@@ -1460,18 +1460,21 @@ end;
 function TTTFFont.InitGlyph(const AFont: TFontInstance; const ACharID: Cardinal;
   const AFontSize: Integer): TFontGlyph;
 var
-  LXOffset, LYOffset, LXAdvance, LLeftSideBearing: Integer;
+  LGlyphIndex, LXOffset, LYOffset, LXAdvance, LLeftSideBearing: Integer;
   LCharID: Cardinal;
   LTexture: TEngineTexture;
 begin
-  if not Self.HasGlyph(ACharID) then Exit(nil);
+  LGlyphIndex:= stbtt_FindGlyphIndex(ACharID);
+  if LGlyphIndex <= 0 then
+    Exit(nil);
   LTexture:= AFont.TempTexture;
   //
   FScale:= Self.ScaleForPixelHeight(AFontSize);
   if ACharID = TFontTypes.SpaceCharID then
   begin
     LCharID:= Cardinal('_');
-    Self.GetCodepointBitmap(FScale, FScale, LCharID, LTexture, LXOffset, LYOffset);
+    LGlyphIndex:= stbtt_FindGlyphIndex(LCharID);
+    Self.GetCodepointBitmap(FScale, FScale, LCharID, LGlyphIndex, LTexture, LXOffset, LYOffset);
     LTexture.Clear;
     LTexture.Width:= TFontTypes.SpaceWidth;
     LTexture.Height:= TFontTypes.SpaceHeight;
@@ -1480,7 +1483,7 @@ begin
     Exit;
   end;
   //
-  if Self.GetCodepointBitmap(FScale, FScale, ACharID, LTexture, LXOffset, LYOffset) then
+  if Self.GetCodepointBitmap(FScale, FScale, ACharID, LGlyphIndex, LTexture, LXOffset, LYOffset) then
   begin
     Self.stbtt_GetCodepointHMetrics(ACharID, LXAdvance, LLeftSideBearing);
     Result:= AFont.AddGlyphFromImage(ACharID, LTexture, LXOffset, LYOffset, Trunc(LXAdvance * FScale));

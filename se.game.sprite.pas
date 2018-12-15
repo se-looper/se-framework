@@ -44,6 +44,7 @@ type
     FX, FY, FDrawX, FDrawY: Single;
     FBlendMode: TEngineBlendingEffect;
     FMoveable, FTruncDraw, FVisible: Boolean;
+    FOffset: TPoint2f;
     FCollidePos: TPoint2f;
     FCollideRadius: Integer;
     FCollideRect: TFloatRect;
@@ -69,6 +70,7 @@ type
     function GetPatternCount: Integer;
   private
     FZOrderAutoSort: Boolean;
+    procedure Render;
     procedure Add(const ASprite: TCustomSprite);
     procedure Remove(const ASprite: TCustomSprite);
     procedure ResetDrawOrder;
@@ -93,7 +95,6 @@ type
     procedure MouseLeave; virtual;
   protected
     FManager: TSpriteManager;
-    procedure Render; virtual;
     procedure DoDraw; virtual;
     procedure DoMove(const AMoveCount: Single); virtual;
     procedure DoCollision(const ASprite: TCustomSprite); virtual;
@@ -138,6 +139,8 @@ type
     property Width: Integer read FWidth write SetWidth;
     // 高度
     property Height: Integer read FHeight write SetHeight;
+    // 偏移
+    property Offset: TPoint2f read FOffset write FOffset;
     // 混合模式
     property BlendMode: TEngineBlendingEffect read FBlendMode write FBlendMode;
     // 是否可移动
@@ -186,14 +189,13 @@ type
     FColor: TFloatColor;
     FAngle: Single;
     FAngle360: Integer;
-    FOffset, FScale: TPoint2f;
+    FScale: TPoint2f;
     FDrawMode: TDrawMode;
     FTransformQuad: TQuad;
     FMirror, FFlip, FCentered, FSelected, FCollisionable: Boolean;
     procedure SetAngle360(Value: Integer);
     procedure SetSelected(const Value: Boolean);
   protected
-    procedure Render; override;
     procedure DoDraw; override;
   public
     constructor Create(const AManager: TSpriteManager); override;
@@ -205,8 +207,6 @@ type
     property Angle: Single read FAngle write FAngle;
     // 弧度
     property Angle360: Integer read FAngle360 write SetAngle360;
-    // 偏移
-    property Offset: TPoint2f read FOffset write FOffset;
     // 比例
     property Scale: TPoint2f read FScale write FScale;
     // 渲染模式
@@ -291,6 +291,7 @@ type
     procedure SetFontColor(const Value: TIntColor);
     procedure SetFontSize(const Value: Word);
   protected
+    procedure Resize; override;
     procedure DoDraw; override;
   public
     constructor Create(const AManager: TSpriteManager); override;
@@ -463,6 +464,7 @@ begin
   FMoveable:= True;
   FTruncDraw:= True;
   FVisible:= True;
+  FOffset:= ZeroPoint2f;
   FPatternIndex:= 0;
   FTag:= 0;
   FCollideMode:= TCollideMode.cmRect;
@@ -627,10 +629,10 @@ var
 begin
   if FVisible then
   begin
-    if (FDrawX > ifthen(FFixedLayout,0,FManager.WorldX) - FWidth) and
-       (FDrawY > ifthen(FFixedLayout,0,FManager.WorldY) - FHeight) and
-       (FDrawX < ifthen(FFixedLayout,0,FManager.WorldX) + FManager.ViewPort.X) and
-       (FDrawY < ifthen(FFixedLayout,0,FManager.WorldY) + FManager.ViewPort.Y) then
+    if (FDrawX + FOffset.X > ifthen(FFixedLayout,0,FManager.WorldX) - FWidth) and
+       (FDrawY + FOffset.Y > ifthen(FFixedLayout,0,FManager.WorldY) - FHeight) and
+       (FDrawX + FOffset.X < ifthen(FFixedLayout,0,FManager.WorldX) + FManager.ViewPort.X) and
+       (FDrawY + FOffset.Y < ifthen(FFixedLayout,0,FManager.WorldY) + FManager.ViewPort.Y) then
     begin
       DoDraw;
       Inc(FManager.FDrawCount);
@@ -839,6 +841,12 @@ begin
   else
     LContainerSize:= FManager.ViewPort;
   //
+  if FAlign = amClient then
+  begin
+    FWidth := LContainerSize.X;
+    FHeight:= LContainerSize.Y;
+  end;
+  //
   case FAlign of
     amRightTop:
       begin
@@ -907,7 +915,6 @@ begin
   FAngle:= 0;
   FAngle360:= 0;
   FScale:= Point2f(1.0, 1.0);
-  FOffset:= Point2f(0, 0);
   FCentered:= False;
   FDrawMode:= TDrawMode.dmColor;
 end;
@@ -916,26 +923,6 @@ destructor TSprite.Destroy;
 begin
   SetSelected(False);
   inherited Destroy;
-end;
-
-procedure TSprite.Render;
-var
-  I: Integer;
-begin
-  if FVisible then
-  begin
-    if (FDrawX + FOffset.X > ifthen(FFixedLayout,0,FManager.WorldX) - FWidth) and
-       (FDrawY + FOffset.Y > ifthen(FFixedLayout,0,FManager.WorldY) - FHeight) and
-       (FDrawX + FOffset.X < ifthen(FFixedLayout,0,FManager.WorldX) + FManager.ViewPort.X) and
-       (FDrawY + FOffset.Y < ifthen(FFixedLayout,0,FManager.WorldY) + FManager.ViewPort.Y) then
-    begin
-      DoDraw;
-      Inc(FManager.FDrawCount);
-    end;
-    //
-    for I:= 0 to FChildList.Count - 1 do
-      TSprite(FChildList[I]).Render;
-  end;
 end;
 
 procedure TSprite.DoDraw;
@@ -1161,6 +1148,89 @@ end;
 
 {$ENDREGION}
 
+{$REGION 'TTextSprite'}
+
+{ TTextSprite }
+
+constructor TTextSprite.Create(const AManager: TSpriteManager);
+begin
+  inherited;
+  {$IFDEF DEBUG}
+  FCanFocus:= True;
+  {$ELSE}
+  FCanFocus:= False;
+  {$ENDIF}
+  FFixedLayout:= True;
+  FHitTest:= False;
+  //
+  FFont:= FManager.DefaultFont;
+  FFontColor:= IntColorBlack;
+  FFontSize := TFontTypes.OptimumFontSize;
+  FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
+  FFontStyle:= TFontCharStyle.Default(FFontColor);
+  FTextAlign:= TTextAlignMode.tamLeft;
+  FFontRenderer.Reset;
+end;
+
+procedure TTextSprite.DoDraw;
+begin
+  if not Assigned(FFont) then
+    Exit;
+  //
+  if FFontRenderer.Chars.Count = 0 then
+    FFontRenderer:= FFont.Compile(Point2f(Self.FDrawX, Self.FDrawY), FText,
+      FFontSize, FFontStyle, IntRect(0, 0, FWidth, FHeight), FWidth <> 0, -1, FTextAlign);
+  //
+  FFont.DrawText(FFontRenderer, FFontSizeScale);
+end;
+
+procedure TTextSprite.Resize;
+begin
+  inherited;
+  FFontRenderer.Reset;
+end;
+
+procedure TTextSprite.SetText(const Value: string);
+begin
+  if FText <> Value then
+  begin
+    FText:= Value;
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontColor(const Value: TIntColor);
+begin
+  if FFontColor <> Value then
+  begin
+    FFontColor:= Value;
+    FFontStyle.Color:= FFontColor;
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontName(const Value: string);
+begin
+  if FFontName <> Value then
+  begin
+    FFontName:= Value;
+    FFont:= AssetsManager.RequireFont(FFontName);
+    FFontRenderer.Reset;
+  end;
+end;
+
+procedure TTextSprite.SetFontSize(const Value: Word);
+begin
+  if FFontSize <> Value then
+  begin
+    FFontSize:= Value;
+    FFontRenderer.Reset;
+    FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
+  end;
+end;
+
+{$ENDREGION}
+
 {$REGION 'TGUISprite'}
 
 { TGUISprite }
@@ -1231,85 +1301,10 @@ end;
 procedure TGUISprite.SetText(const Value: TTextSprite);
 begin
   FText:= Value;
+  FText.Width:= Self.Width;
+  FText.Height:= Self.Height;
   FText.Parent:= Self;
   FText.Align:= TAlignMode.amClient;
-end;
-
-{$ENDREGION}
-
-{$REGION 'TTextSprite'}
-
-{ TTextSprite }
-
-constructor TTextSprite.Create(const AManager: TSpriteManager);
-begin
-  inherited;
-  {$IFDEF DEBUG}
-  FCanFocus:= True;
-  {$ELSE}
-  FCanFocus:= False;
-  {$ENDIF}
-  FFixedLayout:= True;
-  FHitTest:= False;
-  //
-  FFont:= FManager.DefaultFont;
-  FFontColor:= IntColorBlack;
-  FFontSize := TFontTypes.OptimumFontSize;
-  FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
-  FFontStyle:= TFontCharStyle.Default(FFontColor);
-  FTextAlign:= TTextAlignMode.tamLeft;
-  FFontRenderer.Reset;
-end;
-
-procedure TTextSprite.DoDraw;
-begin
-  if not Assigned(FFont) then
-    Exit;
-  //
-  if FFontRenderer.Chars.Count = 0 then
-    FFontRenderer:= FFont.Compile(Point2f(Self.FDrawX, Self.FDrawY), FText,
-      FFontSize, FFontStyle, IntRect(0, 0, FWidth, FHeight), FWidth <> 0, -1, FTextAlign);
-  //
-  FFont.DrawText(FFontRenderer, FFontSizeScale);
-end;
-
-procedure TTextSprite.SetText(const Value: string);
-begin
-  if FText <> Value then
-  begin
-    FText:= Value;
-    FFontRenderer.Reset;
-  end;
-end;
-
-procedure TTextSprite.SetFontColor(const Value: TIntColor);
-begin
-  if FFontColor <> Value then
-  begin
-    FFontColor:= Value;
-    FFontStyle.Color:= FFontColor;
-    FFontRenderer.Reset;
-  end;
-end;
-
-procedure TTextSprite.SetFontName(const Value: string);
-begin
-  if FFontName <> Value then
-  begin
-    FFontName:= Value;
-    FFont:= AssetsManager.RequireFont(FFontName);
-    FFontRenderer.Reset;
-  end;
-end;
-
-procedure TTextSprite.SetFontSize(const Value: Word);
-begin
-  if FFontSize <> Value then
-  begin
-    FFontSize:= Value;
-    FFontRenderer.Reset;
-    FFontSizeScale:= FFontSize / TFontTypes.OptimumFontSize * TClientUtils.ScreenScale;
-  end;
 end;
 
 {$ENDREGION}

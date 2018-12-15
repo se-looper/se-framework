@@ -85,8 +85,6 @@ begin
       Text:= TTextSprite.Create(FSpriteManager);
       Text.GroupName:= AGroupName;
       Text.Name:= ALayoutItem.Text.Name;
-      Text.Width:= ALayoutItem.Width;
-      Text.Height:= ALayoutItem.Height;
       Text.Text:= ALayoutItem.Text.Text;
       Text.FontSize:= ALayoutItem.Text.Font.Size;
       Text.FontColor:= ALayoutItem.Text.Font.Color;

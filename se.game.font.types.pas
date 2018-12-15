@@ -14,7 +14,7 @@ unit se.game.font.types;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Math, PXL.Types;
+  System.Classes, System.SysUtils, System.Math;
 
 type
   TFontTypes = record

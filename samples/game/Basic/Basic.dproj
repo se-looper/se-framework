@@ -5,7 +5,7 @@
         <FrameworkType>FMX</FrameworkType>
         <MainSource>Basic.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1119</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -479,7 +479,7 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_72x72.png" Configuration="Debug" Class="iPad_AppIcon72"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_40x40.png" Configuration="Debug" Class="iPhone_Spotlight40"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
                 <DeployFile LocalName="deploy\script\app.lua" Configuration="Release" Class="File">
                     <Platform Name="Android">
                         <RemoteDir>.\assets\internal\script\</RemoteDir>
@@ -488,7 +488,7 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png" Configuration="Debug" Class="Android_SplashImage960"/>
-                <DeployFile LocalName="$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png" Configuration="Debug" Class="Android_SplashImage426"/>
+                <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_40x40.png" Configuration="Debug" Class="iPhone_Spotlight40"/>
                 <DeployFile LocalName="d:\tp\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\lib\android\debug\mips\libnative-activity.so" Configuration="Debug" Class="AndroidLibnativeMipsFile"/>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2208x1242.png" Configuration="Debug" Class="iPhone_Launch2208"/>
